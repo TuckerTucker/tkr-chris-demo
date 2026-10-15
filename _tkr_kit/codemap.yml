@@ -1,0 +1,155 @@
+capabilities:
+  scoring: {state: done, path: src/domain, provides: "validation, GIR, fairways, totals, manual par source"}
+  round-storage: {state: done, path: src/storage, provides: "IndexedDB rounds, drafts, par memory, durable undo"}
+  round-entry: {state: done, path: src/ui/entry, provides: "start, hole entry, corrections, turn, finish, summary"}
+  round-log: {state: done, path: src/ui/log, provides: "history, detail, corrections, removal and restore"}
+  platform: {state: done, path: scripts, provides: "strict build, lint, architecture guards, real-browser tests"}
+  app-shell:
+    state: in_progress
+    implementation: "Built: composition, hash routing, offline updates, accessible controls, footer themes"
+    acceptance: "Physical iPhone/Safari and Android/Chrome installation checks pending"
+    paths: [src/main.tsx, src/app, src/ui/kit, public]
+  course-scorecard: {state: deferred, seam: src/domain/par-source.ts, implementation: absent}
+state:
+  head: "db05df451c46c4766a8eaa0204c035bc54a0c42c"
+  built: [scoring, round-storage, round-entry, round-log, platform, app-shell-implementation]
+  deferred: [course-scorecard]
+  planning: {product: in_progress, slices_done: 59, slices_in_progress: 1}
+  do_not_assume:
+    - "App-shell implementation is not physical-device acceptance or release approval."
+    - "No backend, account, cloud sync, backup, course lookup, export or handicap calculation exists."
+    - "No application operations registry or HTTP API; tkr-kit is external development tooling."
+    - "No local codemap renderer or embed hook exists; maintain both map copies together."
+    - "Browser storage can be cleared or evicted; persistence is not a backup."
+    - "Historical audit artifacts precede the footer theme change; do not treat them as current receipts."
+invariants:
+  - "src/domain imports only domain modules; external consumers use src/domain/index.ts."
+  - "src/storage never imports app/UI; production modules never import test support."
+  - "main/container own injected storage, sessions, undo, logger and lifecycle; screens consume those ports."
+  - "Only committed transactions mean Saved; drafts remain distinct from confirmed scores."
+  - "Mutations check revisions; preserve local input on conflict until explicit reload/reapply."
+  - "At most one active round and one pending removal; Undo/Dismiss resolve removal by token."
+  - "Service-worker activation needs every client safe; active rounds, drafts and pending undo defer it."
+meta:
+  fmt: 14
+  name: golf-scorecard
+  ver: "1.0.0"
+  ts: "2026-10-15T22:11:41+00:00"
+  purpose: "Local-only phone scorecard for a single golfer, with 9/18-hole rounds and history"
+  provenance: "Source inspection, context.api, planning YAML and commit-check log"
+  cmds: {setup: "npm ci && npm run setup:browsers", dev: "npm run dev", check: "npm run check"}
+deps:
+  runtime: {preact: "11.0.0", idb: "8.0.3", pino: "10.3.1"}
+  toolchain: {typescript: "6.0.3", vite: "8.3.1", vite-plugin-pwa: "1.3.0", eslint: "10.11.0"}
+  testing: {vitest: "5.0.3", playwright: "1.64.0", axe-core: "4.13.0"}
+  canonical: package-lock.json
+struct:
+  counting: "Tracked JS/TS/TSX only for n; tests and support excluded; assets counted separately"
+  src/main.tsx: {n: 1, tests: 0, role: "browser bootstrap and lifecycle"}
+  src/app: {n: 13, tests: 4, assets: 1, role: "composition, controllers, router, service-worker coordinator, theme"}
+  src/domain: {n: 6, tests: 5, role: "pure scoring rules and ports"}
+  src/storage: {n: 7, tests: 6, support: 1, role: "IndexedDB schema, migrations, transactional repositories"}
+  src/ui/entry: {n: 13, tests: 3, assets: 1, role: "round entry and completion"}
+  src/ui/kit: {n: 6, tests: 5, support: 1, assets: 1, role: "shared accessible controls and theme tokens"}
+  src/ui/log: {n: 7, tests: 2, assets: 1, role: "history and detail editing"}
+  scripts: {n: 3, tests: 2, role: "browser runner and architecture/no-mocks guards"}
+  e2e: {n: 0, tests: 10, support: 2, role: "production browser acceptance"}
+  public: {n: 0, tests: 0, assets: 4, role: "manifest and three install icons"}
+  _tkr_kit: {role: "product, capabilities, features, slices, specs, orchestration and wireframes"}
+  docs: {role: "implementation audit, source fingerprint and release runbooks"}
+nav:
+  start: [README.md, src/main.tsx, src/app/container.ts, src/app/routes.ts]
+  scoring: [src/domain/index.ts, src/domain/hole.ts, src/domain/round.ts, src/domain/totals.ts]
+  persistence: [src/storage/index.ts, src/storage/database.ts, src/storage/round-repository.ts, src/storage/round-trash.ts]
+  editing: [src/app/session.ts, src/ui/entry/useHoleEditor.ts, src/ui/log/useRoundDetail.ts]
+  offline: [vite.config.ts, src/app/sw-update.ts, src/app/sw-coordinator.js, e2e/update.spec.ts]
+  appearance: [src/app/theme.ts, src/app/ThemeChooser.tsx, src/ui/kit/theme.css, e2e/theme.spec.ts]
+  release: [docs/runbooks/golf-scorecard-release.md, docs/runbooks/implementation-evidence.md]
+api:
+  operations: []
+  http_routes: []
+  scope: "Application only; context.api confirms no registry/HTTP surface. Hash routes inspected directly."
+  hash_routes:
+    - {path: /round/start, view: StartRound}
+    - {path: "/round/hole/:n", view: HoleEntry}
+    - {path: /round/turn, view: TheTurn}
+    - {path: /round/finish, view: FinishRound}
+    - {path: "/round/:id/summary", view: RoundSummary}
+    - {path: /log, view: RoundList}
+    - {path: "/log/:id", view: RoundDetail}
+  ports:
+    domain: {source: src/domain/index.ts, includes: [validateHole, validateRound, nextStep, canFinish, roundTotals, createManualParSource]}
+    storage: {source: src/storage/index.ts, includes: [RoundRepository, RoundTrash, ParMemoryStore, StorageError]}
+    application: {source: src/app/container.ts, includes: [Container, buildContainer, useContainer]}
+    session: {source: src/app/session.ts, includes: [SessionController, createSessionController]}
+    theme: {source: src/app/theme.ts, includes: [ThemeController, createThemeController]}
+config:
+  node: {pinned: "24.11.1", allowed: "^22.13.0 || ^24.0.0 || >=26.0.0", engine_strict: true}
+  modules: "ES modules; strict TypeScript, noUncheckedIndexedAccess, named application exports"
+  storage:
+    database: golf-scorecard
+    version: 1
+    stores: [rounds, trash, par-memory]
+    round_indexes: [by-status, by-date]
+    retention: "Rounds until removal; one trash item until Undo/Dismiss; par memory bounded by hole 1..18"
+  theme: {key: golf-scorecard.theme, store: localStorage, values: [system, light, dark], default: system}
+  updates:
+    build_id: "Random UUID generated by vite.config.ts per build; never a stable source fingerprint"
+    schema_compatibility: 1
+    constants: [VITE_APP_BUILD_ID, VITE_APP_SCHEMA_VERSION]
+    registration: "Prompt mode, custom registration/coordinator, no automatic skipWaiting"
+  browser_cache: "PLAYWRIGHT_BROWSERS_PATH override; defaults to os.tmpdir()/golf-scorecard-browsers"
+  e2e_server: "http://127.0.0.1:4173; strict port; no existing-server reuse"
+  hosting: "Static dist/ over HTTPS; localhost secure-context exception for testing"
+  logging: "Injected pino logger, info default, browser object output; inline UI reports failures"
+relations:
+  startup: "main -> theme controller + buildContainer -> createStorage -> session/undo -> App/routes"
+  entry: "UI hook -> session queue -> revision-checked IndexedDB transaction -> saved state + broadcast"
+  scoring: "Confirmed holes -> domain derivations/totals -> running score, detail and summary"
+  par: "Container injects manual ParSource backed by par-memory; confirming a hole commits remembered par"
+  navigation: "Hash transition flushes editors first; failed flush preserves the current screen"
+  tabs: "BroadcastChannel scorecard:<dbName> and window focus refresh sessions; revisions reject stale writes"
+  themes: "Footer selection -> injected persistence/apply ports -> root data-theme; storage events sync tabs"
+  offline: "VitePWA precache -> coordinator handshake -> activation only when clients safe; retain live assets"
+testing:
+  unit: {runner: "Vitest node", include: ["src/domain/**/*.test.ts", "scripts/**/*.test.ts"]}
+  browser: {runner: "Vitest Playwright Chromium", include: ["src/{storage,ui,app}/**/*.test.{ts,tsx}"]}
+  e2e: {runner: Playwright, projects: [chromium-phone, chromium-desktop, webkit-phone], retries: 0}
+  latest:
+    date: "2026-10-15"
+    commit: "db05df451c46c4766a8eaa0204c035bc54a0c42c"
+    tree: "ca2c6f7b930947b8cfa36fc21e538c2bc6983508"
+    command: "npm run check"
+    result: {exit: 0, unit: 225, browser: 167, e2e: 84, total: 476}
+    environment: "Node 24.11.1; PLAYWRIGHT_BROWSERS_PATH=/private/tmp/golf-scorecard-browsers"
+    evidence: "/private/tmp/golf-scorecard-commit-check.log (local, ephemeral) and commit completion report"
+    scope: "Final committed application tree before codemap generation; default timeouts"
+  historical_audit: "docs/audits/2026-10-15-check.log: 473 tests before theme chooser; separate source manifest"
+  guards: "typecheck, lint, no-mocks (97 files), architecture (52 TS/TSX modules); JS coordinator outside architecture scan"
+  acceptance: "Physical-phone installation/background recovery pending; automated checks are not release approval"
+arch:
+  boundaries: "domain <- storage <- app composition; UI consumes container and pure domain barrel"
+  patterns: [injected-ports, transactional-repositories, observable-controllers, guarded-hash-navigation]
+  persistence: "Real IndexedDB browser tests; no module mocks; forward-only schema migrations"
+  workers: "JS coordinator emitted as build asset, separate from main TypeScript import graph"
+  evidence: "Planning completion references manual audit evidence; no formal orchestrator/assurance receipts claimed"
+ops:
+  scripts:
+    dev: "vite"
+    build: "npm run typecheck && vite build"
+    preview: "vite preview"
+    typecheck: "tsc --noEmit && tsc --noEmit -p tsconfig.vite.json"
+    lint: "eslint . --max-warnings 0"
+    setup:browsers: "node --import tsx scripts/browser-tool.ts install"
+    test:unit: "vitest run --project unit"
+    test:browser: "node --import tsx scripts/browser-tool.ts browser"
+    test:e2e: "npm run build && node --import tsx scripts/browser-tool.ts e2e"
+    check:no-mocks: "node --import tsx scripts/check-no-mocks.ts"
+    check:architecture: "node --import tsx scripts/check-architecture.ts"
+    check: "npm run typecheck && npm run lint && npm run check:no-mocks && npm run check:architecture && npm run test:unit && npm run test:browser && npm run test:e2e"
+  codemap: "Edit _tkr_kit/codemap.yml and synchronize its fenced copy in ignored CLAUDE.local.md"
+semantic:
+  "~read_first": "Follow nav.start, then the relevant controller and repository before changing a screen."
+  "~course_extension": "Implement ParSource after choosing course data; keep scoring independent of lookup."
+  "~save_bug": "Distinguish localDrafts, durable drafts, confirmed holes and revision conflicts before altering save behavior."
+  "~release": "Use the physical acceptance runbook and the installed build ID; do not substitute emulation evidence."
