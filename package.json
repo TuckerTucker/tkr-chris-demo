@@ -1,0 +1,48 @@
+{
+  "name": "golf-scorecard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^22.13.0 || ^24.0.0 || >=26.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.vite.json",
+    "lint": "eslint . --max-warnings 0",
+    "setup:browsers": "node --import tsx scripts/browser-tool.ts install",
+    "test:unit": "vitest run --project unit",
+    "test:browser": "node --import tsx scripts/browser-tool.ts browser",
+    "test:e2e": "npm run build && node --import tsx scripts/browser-tool.ts e2e",
+    "check:no-mocks": "node --import tsx scripts/check-no-mocks.ts",
+    "check": "npm run typecheck && npm run lint && npm run check:no-mocks && npm run check:architecture && npm run test:unit && npm run test:browser && npm run test:e2e",
+    "check:architecture": "node --import tsx scripts/check-architecture.ts"
+  },
+  "dependencies": {
+    "idb": "8.0.3",
+    "pino": "10.3.1",
+    "preact": "11.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.0",
+    "@preact/preset-vite": "2.10.6",
+    "@testing-library/preact": "3.2.4",
+    "@types/babel__core": "7.20.5",
+    "@types/node": "22.18.6",
+    "@vite-pwa/assets-generator": "1.0.4",
+    "@vitest/browser": "5.0.3",
+    "@vitest/browser-playwright": "5.0.3",
+    "axe-core": "4.13.0",
+    "eslint": "10.11.0",
+    "playwright": "1.64.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.1",
+    "vite-plugin-pwa": "1.3.0",
+    "vitest": "5.0.3"
+  }
+}

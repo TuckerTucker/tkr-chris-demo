@@ -7,3 +7,10 @@ CLAUDE.local.md
 
 # macOS metadata
 .DS_Store
+
+# Build and test artifacts
+node_modules/
+dist/
+test-results/
+playwright-report/
+.vitest/
