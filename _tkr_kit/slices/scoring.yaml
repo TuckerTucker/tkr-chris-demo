@@ -10,9 +10,12 @@ slices:
     layer: domain
     paths:
       - src/domain/hole.ts
-    status: planned
+    status: done
     story_ids: []
     title: Hole type and validation
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-rules
     number: 2
     depends_on:
@@ -25,7 +28,10 @@ slices:
     title: Hole derivations
     layer: domain
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-rules
     number: 3
     depends_on:
@@ -38,7 +44,10 @@ slices:
     title: Wire hole-rules
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-rules
     number: 4
     depends_on:
@@ -52,7 +61,10 @@ slices:
     title: Test hole-rules
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-rules
     number: 5
     depends_on:
@@ -65,7 +77,10 @@ slices:
     title: Round type and length rules
     layer: domain
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-rules
     number: 6
     depends_on:
@@ -80,7 +95,10 @@ slices:
     title: Round totals
     layer: domain
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-rules
     number: 7
     depends_on:
@@ -94,7 +112,10 @@ slices:
     title: ParSource port and manual ParSource
     layer: domain
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-rules
     number: 8
     depends_on:
@@ -109,7 +130,10 @@ slices:
     title: Wire round-rules
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-rules
     number: 9
     depends_on:
@@ -125,4 +149,7 @@ slices:
     title: Test round-rules
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

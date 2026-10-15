@@ -44,12 +44,15 @@ capabilities:
       - Course data lookup (course-scorecard)
       - Handicap, net scores, Stableford or other formats
       - Statistics across several rounds (trends, averages)
-    status: planned
+    status: done
     paths:
       - src/domain/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: round-storage
     layer: data
-    status: planned
+    status: done
     description: 'On-device persistence for rounds: the in-progress round saved on
       every hole, the log of finished rounds, and the per-hole-number par memory
       that feeds the manual par source. Nothing leaves the device and no server
@@ -98,9 +101,12 @@ capabilities:
       - Every store declares its retention answer and has none left undeclared
     paths:
       - src/storage/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: app-shell
     layer: integration
-    status: planned
+    status: in_progress
     description: 'The web app as a whole: an installable, offline-capable phone web
       app, the composition root that wires scoring, storage and the screens
       together through injection, navigation between the current round and the
@@ -149,7 +155,7 @@ capabilities:
       - e2e/update.spec.ts
   - name: round-entry
     layer: ui
-    status: planned
+    status: done
     description: 'Recording a round on the course: starting a round, entering each
       hole with one hand, seeing the running score, choosing at the turn whether
       to stop at 9 or go on to 18, correcting an earlier hole, and seeing the
@@ -201,9 +207,12 @@ capabilities:
       - src/ui/entry/**
       - e2e/hole-entry.spec.ts
       - e2e/round-completion.spec.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: round-log
     layer: ui
-    status: planned
+    status: done
     description: 'The history of finished rounds: a list of every round with its
       headline stats, a detail view showing the hole-by-hole card, correction of
       a logged round in place, and removal with undo.'
@@ -243,6 +252,9 @@ capabilities:
       - src/ui/log/**
       - e2e/round-history.spec.ts
       - e2e/round-detail.spec.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: course-scorecard
     layer: service
     status: deferred
@@ -272,7 +284,7 @@ capabilities:
       - A course card that has been used once works offline
   - name: platform
     layer: integration
-    status: planned
+    status: done
     description: 'The project''s build and test foundation: the Vite + TypeScript
       (strict) + Preact scaffold, ESLint, and the test tooling every other
       capability writes into, including Vitest in node for pure domain code,
@@ -323,3 +335,6 @@ capabilities:
       - _tkr_kit/**
       - .claude/**
       - docs/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

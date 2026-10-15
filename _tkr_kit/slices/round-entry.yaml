@@ -10,9 +10,12 @@ slices:
     paths:
       - src/ui/entry/useHoleEditor.ts
       - src/ui/entry/HoleEditor.tsx
-    status: planned
+    status: done
     story_ids: []
     title: Hole editor
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 2
     depends_on:
@@ -25,7 +28,10 @@ slices:
     title: Round session
     layer: service
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 3
     depends_on:
@@ -36,7 +42,10 @@ slices:
     title: Start round screen
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 4
     depends_on:
@@ -44,13 +53,18 @@ slices:
     paths:
       - src/ui/entry/HoleEntry.tsx
       - src/ui/entry/RunningScore.tsx
+      - src/ui/entry/SessionStatus.tsx
+      - src/ui/entry/entry.css
     delivers: 'The hole screen: a RunningScore header (score to par, holes played)
       above the HoleEditor and a thumb-reach Confirm button. Shows the saved
       hole''s GIR on confirm, and shows a save error inline.'
     title: Hole entry screen and running score
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 5
     depends_on:
@@ -63,7 +77,10 @@ slices:
     title: Hole navigation and correction
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 6
     depends_on:
@@ -79,7 +96,10 @@ slices:
     title: Wire hole-entry
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: hole-entry
     number: 7
     depends_on:
@@ -94,7 +114,10 @@ slices:
     title: Test hole-entry
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 8
     depends_on:
@@ -107,7 +130,10 @@ slices:
     title: Turn and finish logic
     layer: service
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 9
     depends_on:
@@ -119,7 +145,10 @@ slices:
     title: The turn screen
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 10
     depends_on:
@@ -131,7 +160,10 @@ slices:
     title: Round summary screen
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 11
     depends_on:
@@ -145,7 +177,10 @@ slices:
     title: Abandon round with undo
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 12
     depends_on:
@@ -164,7 +199,10 @@ slices:
     title: Wire round-completion
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-completion
     number: 13
     depends_on:
@@ -177,4 +215,7 @@ slices:
     title: Test round-completion
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

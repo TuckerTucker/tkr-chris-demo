@@ -1,7 +1,7 @@
-# Reviewed 2026-10-15. Full hashes regenerated after spec approval.
+# Reviewed 2026-10-15. Full assignment hashes revalidated before completion promotion.
 orchestration:
   name: golf-scorecard-v1
-  status: approved
+  status: in_progress
   strategy: platform -> scoring rules -> on-device storage -> app shell -> round entry -> round log (course-scorecard
     deferred)
   capability_waves:
@@ -22,7 +22,7 @@ orchestration:
     - course-scorecard
   feature_runs:
   - feature: platform/feature/project-scaffold
-    plan_hash: 607e3364fd6d581512e6dc05ea074f590395990e435525685973f505c4ee0d38
+    plan_hash: 8b9b0b7d0b89d9d3bd254dc0d2e97daeb3221847bd176f78253dc348f9da8f2a
     waves: 5
     agents: 5
     after: []
@@ -84,7 +84,7 @@ orchestration:
     - exports
     - orphans
   - feature: app-shell/feature/offline-shell
-    plan_hash: 45a7c66490259a81dac5bc60bddca8ec4ee3f6e61d55bb62eaad6d654b87c3bd
+    plan_hash: 5d1e9e66ea7c88cab55c954a5063580caf5c417e65ea17eb57689f299cce6af6
     waves: 5
     agents: 5
     after:
@@ -96,7 +96,7 @@ orchestration:
     - exports
     - orphans
   - feature: app-shell/feature/ui-kit
-    plan_hash: 1b5f5a5879128ad4c1a0ee195a770c29da2b554ac4144ce8764a8bbeccae4fb6
+    plan_hash: 2eb6ca00b12bf44cbe34c14c0abfbe6e48c22667d25459fe5498edc0dfacca9f
     waves: 5
     agents: 7
     after:
@@ -124,7 +124,7 @@ orchestration:
     - exports
     - orphans
   - feature: round-entry/feature/hole-entry
-    plan_hash: 886ee8925b992c8ba72be3a087fb877f5d5a4dfca593f098270834995851ea9e
+    plan_hash: 88c09041dd1de09fcda34f2a99c8865a15d933fef437f204927518dc36f45b66
     waves: 7
     agents: 8
     after:
@@ -152,7 +152,7 @@ orchestration:
     - exports
     - orphans
   - feature: round-log/feature/round-history
-    plan_hash: ab4548141902e847e5acebbd32c3a174e703763d1e1818477a887f9b1d710578
+    plan_hash: 5582ad9d982e167ec028fbbedb5be9d3bf6bced839675373f7ab809fc76a5d80
     waves: 5
     agents: 5
     after:
@@ -166,7 +166,7 @@ orchestration:
     - exports
     - orphans
   - feature: round-log/feature/round-detail
-    plan_hash: 389ba9993e21d549f26fc749b24e323e77a3ac2cdc8e07930d0c69d1ac1a7600
+    plan_hash: 9cd9d5790db15fdfcd40d018c9e8de2aa040dd3e9a82a456a7262566b5fc3c7f
     waves: 5
     agents: 6
     after:
@@ -184,9 +184,13 @@ orchestration:
     waves: 64
     agents: 72
   readiness:
-  - All 60 slice specs are approved; six active capabilities, twelve features and sixty slices are planned.
-    Course scorecard stays deferred. Approval authorizes implementation; release still requires passing
-    runtime evidence.
+  - All twelve features are implemented. Direct candidate validation passed 225 unit, 167 browser
+    and 81 production E2E tests after a clean install. Fifty-nine slices/specs, eleven features and
+    five capabilities are done. App-shell slice/spec 4, offline-shell, app-shell and the product
+    remain in progress pending physical phone installation acceptance. Course scorecard stays deferred.
+  - Completion uses manual evidence in docs/audits/2026-10-15-implementation.md and its source manifest;
+    no formal orchestrator gate receipts were fabricated. Listed assignment hashes describe the
+    verified execution plans before done entities were excluded by future plan generation.
   - Use Node ^22.13.0, ^24.0.0 or >=26.0.0, then npm ci and explicit browser setup. Current local Node
     20.19.5 is incompatible with Vitest 5. TypeScript is pinned to compatible 6.0.3.
   - 'Feature runs are serialized in listed order, including offline-shell and ui-kit: package.json and

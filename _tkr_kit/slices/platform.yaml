@@ -17,10 +17,14 @@ slices:
       - src/main.tsx
       - package-lock.json
       - .npmrc
+      - .nvmrc
       - .gitignore
-    status: planned
+    status: done
     story_ids: []
     title: Project scaffold
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: project-scaffold
     number: 2
     depends_on:
@@ -40,7 +44,10 @@ slices:
     title: Test tooling
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: project-scaffold
     number: 3
     depends_on:
@@ -48,6 +55,7 @@ slices:
       - 2
     paths:
       - scripts/check-no-mocks.ts
+      - scripts/browser-tool.ts
       - package.json
       - package-lock.json
     delivers: One check pipeline plus a syntax-aware executable mock-call guard
@@ -55,7 +63,10 @@ slices:
     title: Wire project-scaffold
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: project-scaffold
     number: 4
     depends_on:
@@ -68,4 +79,7 @@ slices:
     title: Test project-scaffold
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

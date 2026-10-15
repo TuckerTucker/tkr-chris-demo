@@ -27,7 +27,7 @@ features:
     slice_decomposition_guide: Errors and the schema/migration layer first (every
       store depends on them), then the repository, then delete-with-undo.
       Declare retention on every new store.
-    status: planned
+    status: done
     user_story: As a golfer, I want every hole saved the moment I enter it and my
       rounds kept on my phone, so that nothing I have recorded is ever lost and
       an interrupted round picks up where I left off.
@@ -36,8 +36,11 @@ features:
         - src/storage/**
         - package.json
         - package-lock.json
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: par-memory
-    status: planned
+    status: done
     user_story: As a golfer who keeps playing the same course, I want par filled in
       from what I entered for that hole number last time, so that I rarely have
       to change it.
@@ -64,3 +67,6 @@ features:
     wiring_assignment:
       territory:
         - src/storage/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

@@ -9,9 +9,12 @@ slices:
     layer: data
     paths:
       - src/storage/errors.ts
-    status: planned
+    status: done
     story_ids: []
     title: Typed storage errors
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-repository
     number: 2
     depends_on:
@@ -47,7 +50,10 @@ slices:
     title: Database schema and migrations
     layer: data
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-repository
     number: 3
     depends_on:
@@ -61,7 +67,10 @@ slices:
     title: RoundRepository
     layer: data
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-repository
     number: 4
     depends_on:
@@ -74,7 +83,10 @@ slices:
     title: Remove, restore and purge
     layer: data
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-repository
     number: 5
     depends_on:
@@ -88,7 +100,10 @@ slices:
     title: Wire round-repository
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-repository
     number: 6
     depends_on:
@@ -103,7 +118,10 @@ slices:
     title: Test round-repository
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: par-memory
     number: 7
     depends_on:
@@ -116,7 +134,10 @@ slices:
     title: Par memory store
     layer: data
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: par-memory
     number: 8
     depends_on:
@@ -128,7 +149,10 @@ slices:
     title: Wire par-memory
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: par-memory
     number: 9
     depends_on:
@@ -141,4 +165,7 @@ slices:
     title: Test par-memory
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

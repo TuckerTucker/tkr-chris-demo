@@ -21,7 +21,7 @@ features:
       - PWA manifest and service worker (app-shell/offline-shell)
     slice_decomposition_guide: Scaffold, then test tooling, then the check script
       and guard, then a smoke test proving the whole chain runs.
-    status: planned
+    status: done
     user_story: As the developer building Golf Scorecard, I want one build and one
       check command over a strict TypeScript project with real-browser test
       tooling, so that every capability is built and verified the same way.
@@ -40,5 +40,9 @@ features:
         - package-lock.json
         - src/main.tsx
         - .npmrc
+        - .nvmrc
         - .gitignore
         - src/storage/browser-smoke.test.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

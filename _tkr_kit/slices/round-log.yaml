@@ -9,22 +9,31 @@ slices:
     layer: service
     paths:
       - src/ui/log/useRoundList.ts
-    status: planned
+    status: done
     story_ids: []
     title: Round list view-model
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-history
     number: 2
     depends_on:
       - 1
     paths:
       - src/ui/log/RoundList.tsx
-    delivers: The unpaginated list. Each row shows date, a 9 or 18 badge, score to
-      par, strokes, putts, GIR % and fairways. An in-progress row is pinned at
-      the top with Resume. The empty state offers Start your first round.
+      - src/ui/log/presentation.tsx
+      - src/ui/log/log.css
+    delivers: The unpaginated list. Each row shows date, 9 or 18 hole metadata,
+      score to par, strokes, putts, GIR % and fairways. An in-progress row is
+      pinned at the top with Resume. The empty state offers Start your first
+      round.
     title: Round list screen
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-history
     number: 3
     depends_on:
@@ -37,7 +46,10 @@ slices:
     title: Wire round-history
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-history
     number: 4
     depends_on:
@@ -52,7 +64,10 @@ slices:
     title: Test round-history
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-detail
     number: 5
     depends_on:
@@ -65,20 +80,27 @@ slices:
     title: Round detail view-model
     layer: service
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-detail
     number: 6
     depends_on:
       - 5
     paths:
       - src/ui/log/RoundDetail.tsx
+      - src/ui/log/log.css
     delivers: The round header with totals and the ScorecardTable. Tapping a hole
       opens the round-entry HoleEditor inline under that row, and saving updates
       the totals in place.
     title: Round detail screen with in-place correction
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-detail
     number: 7
     depends_on:
@@ -91,7 +113,10 @@ slices:
     title: Remove round with undo
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-detail
     number: 8
     depends_on:
@@ -106,7 +131,10 @@ slices:
     title: Wire round-detail
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: round-detail
     number: 9
     depends_on:
@@ -120,4 +148,7 @@ slices:
     title: Test round-detail
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

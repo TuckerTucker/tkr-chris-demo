@@ -29,11 +29,14 @@ slice_specs:
         useHoleEditor>; layout: ''full'' | ''compact'' }): JSX.Element'
     purpose: One hole's draft, defaults and live validation, reused by hole entry
       and by correcting a logged round.
-    status: approved
+    status: done
     tests:
       - Covered by round-entry slice 7
     title: Hole editor
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round session
     purpose: 'Drive a round in progress: start, save, advance, correct.'
     interface:
@@ -71,7 +74,10 @@ slice_specs:
     tests:
       - Covered by round-entry slice 7
     slice: 2
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Start round screen
     purpose: 'Start a round with one tap. Wireframe:
       _tkr_kit/wireframes/round-entry/start-round-mobile.svg.'
@@ -89,7 +95,10 @@ slice_specs:
     tests:
       - Covered by round-entry slice 7
     slice: 3
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Hole entry screen and running score
     purpose: 'The screen the golfer uses on every hole. Wireframes:
       hole-entry-mobile.svg and hole-entry-par3-mobile.svg.'
@@ -98,6 +107,11 @@ slice_specs:
         JSX.Element'
       - 'export function RunningScore(props: { totals: RoundTotals; holeNumber:
         number; par: number }): JSX.Element'
+      - 'export function SessionStatus(props: { controller: SessionController;
+        onRecovered?(): Promise<void> }): JSX.Element; shared save feedback and
+        explicit saved/local conflict comparison for entry and logged
+        correction.'
+      - src/ui/entry/entry.css contains the shared responsive entry layout.
     behavior:
       - Header shows hole number, par, running score and holes recorded; before
         the turn do not claim the golfer committed to 18.
@@ -112,22 +126,31 @@ slice_specs:
     tests:
       - Covered by round-entry slice 7
     slice: 4
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Hole navigation and correction
     purpose: Jump to any recorded hole and fix it in place.
     interface:
       - 'export function HoleNav(props: { recorded: number; current: number;
-        onSelect(n: number): void }): JSX.Element'
+        availableNext?: number; onSelect(n: number): void }): JSX.Element'
     behavior:
       - Strip of zero-padded hole cells (01…18), 48px each, horizontally
         scrollable, current hole highlighted
       - Selecting a recorded hole loads it into the editor in correct mode;
         saving calls session.correct
+      - availableNext is supplied only when nextStep permits entering a hole. It
+        keeps the retained next-hole draft reachable while correcting an earlier
+        hole without exposing hole 10 before the turn decision.
     errors: []
     tests:
       - Covered by round-entry slice 7
     slice: 5
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire hole-entry
     purpose: Register the hole-entry routes.
     interface:
@@ -139,7 +162,10 @@ slice_specs:
     tests:
       - Typecheck; behaviour covered by slice 7
     slice: 6
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test hole-entry
     purpose: Prove the on-course flow on a phone viewport.
     interface:
@@ -163,7 +189,10 @@ slice_specs:
       - Par suggestions never overwrite edits; correction changes totals and par
         memory atomically; conflicts preserve local edits.
     slice: 7
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Turn and finish logic
     purpose: The decision at the turn and the end of the round.
     interface:
@@ -187,11 +216,18 @@ slice_specs:
     tests:
       - Covered by round-entry slice 13
     slice: 8
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: The turn screen
     purpose: 'Stop at 9 or play on. Wireframe: the-turn-mobile.svg.'
     interface:
       - 'export function TheTurn(): JSX.Element'
+      - 'TheTurn.tsx also exports FinishRound(): JSX.Element for /round/finish.
+        It attempts finalisation once on a clean eighteen-hole boundary;
+        failures remain in place with explicit retry, and unresolved drafts stay
+        editable.'
     behavior:
       - 'Front-nine totals: score to par (display type), strokes, putts, GIR
         n/9, fairways hit/eligible'
@@ -201,7 +237,10 @@ slice_specs:
     tests:
       - Covered by round-entry slice 13
     slice: 9
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round summary screen
     purpose: 'The finished round at a glance. Wireframe: round-summary-mobile.svg.'
     interface:
@@ -217,7 +256,10 @@ slice_specs:
     tests:
       - Covered by round-entry slice 13
     slice: 10
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Abandon round with undo
     purpose: Leave a round without a confirmation dialog.
     interface:
@@ -233,7 +275,10 @@ slice_specs:
     tests:
       - Covered by round-entry slice 13
     slice: 11
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire round-completion
     purpose: Register completion routes and connect the flow.
     interface:
@@ -249,7 +294,10 @@ slice_specs:
     tests:
       - Typecheck; behaviour covered by slice 13
     slice: 12
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test round-completion
     purpose: Prove both round lengths and undoable abandon end to end.
     interface:
@@ -270,3 +318,6 @@ slice_specs:
       - Complete a full round offline, restart offline and correct a logged
         round; all totals and drafts persist.
     slice: 13
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

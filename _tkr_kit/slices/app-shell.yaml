@@ -8,9 +8,12 @@ slices:
     paths:
       - public/manifest.webmanifest
       - public/icons/**
-    status: planned
+    status: done
     story_ids: []
     title: Web app manifest and icons
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: offline-shell
     number: 2
     depends_on:
@@ -18,6 +21,9 @@ slices:
     paths:
       - vite.config.ts
       - src/app/sw-update.ts
+      - src/app/sw-coordinator.js
+      - tsconfig.json
+      - tsconfig.vite.json
       - src/main.tsx
       - package.json
       - package-lock.json
@@ -27,7 +33,10 @@ slices:
     title: Service worker and safe update
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: offline-shell
     number: 3
     depends_on:
@@ -39,7 +48,10 @@ slices:
     title: Wire offline-shell
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: offline-shell
     number: 4
     depends_on:
@@ -52,7 +64,7 @@ slices:
     title: Test offline-shell
     layer: integration
     story_ids: []
-    status: planned
+    status: in_progress
   - feature: ui-kit
     number: 5
     depends_on: []
@@ -65,7 +77,10 @@ slices:
     title: Theme tokens
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: ui-kit
     number: 6
     depends_on:
@@ -80,7 +95,10 @@ slices:
     title: Stepper and chip toggle
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: ui-kit
     number: 7
     depends_on:
@@ -93,7 +111,10 @@ slices:
     title: Inline status and undo bar
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: ui-kit
     number: 8
     depends_on:
@@ -107,7 +128,10 @@ slices:
     title: Scorecard table
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: ui-kit
     number: 9
     depends_on:
@@ -120,7 +144,10 @@ slices:
     title: Wire ui-kit
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: ui-kit
     number: 10
     depends_on:
@@ -131,16 +158,21 @@ slices:
       - src/ui/kit/InlineStatus.test.tsx
       - src/ui/kit/UndoBar.test.tsx
       - src/ui/kit/ScorecardTable.test.tsx
+      - src/ui/kit/__tests__/**
       - package.json
       - package-lock.json
     delivers: 'Browser-mode component tests: the stepper respects its bounds and
       keyboard; a disabled chip shows its reason; the undo bar calls onUndo and
-      onExpire; the scorecard shows out/in/total for 18 holes and a single total
-      for 9; and an axe accessibility check passes on each component.'
+      onDismiss without a timeout; the scorecard shows out/in/total for 18 holes
+      and a single total for 9; and an axe accessibility check passes on each
+      component.'
     title: Test ui-kit
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 11
     depends_on: []
@@ -154,7 +186,10 @@ slices:
     title: Structured logger
     layer: service
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 12
     depends_on:
@@ -169,7 +204,10 @@ slices:
     title: Dependency container
     layer: service
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 13
     depends_on:
@@ -182,7 +220,10 @@ slices:
     title: Router and start-up routing
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 14
     depends_on:
@@ -195,7 +236,10 @@ slices:
     title: In-place error boundary
     layer: ui
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 15
     depends_on:
@@ -211,7 +255,10 @@ slices:
     title: Wire composition-root
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - feature: composition-root
     number: 16
     depends_on:
@@ -229,4 +276,7 @@ slices:
     title: Test composition-root
     layer: integration
     story_ids: []
-    status: planned
+    status: done
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

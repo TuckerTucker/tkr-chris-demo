@@ -36,6 +36,11 @@ slice_specs:
         playwright-report/, .vitest/ and OS metadata.
     packages:
       - dev: true
+        name: '@types/babel__core'
+        range: 7.20.5
+        reason: Required declarations for the preset's public Babel options; retain
+          strict dependency declaration checking without skipLibCheck
+      - dev: true
         name: vite
         range: 8.3.1
         reason: dev server and bundler
@@ -69,12 +74,15 @@ slice_specs:
         reason: Node configuration and script types compatible with the selected test
           tooling
     purpose: Create the build foundation every other slice writes into.
-    status: approved
+    status: done
     tests:
       - '`npm run build && npm run typecheck && npm run lint` exits 0 on the
         clean scaffold'
     title: Project scaffold
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test tooling
     purpose: 'Give every capability real-dependency test runners: node for pure
       code, a real browser for IndexedDB and components, Playwright for e2e.'
@@ -126,15 +134,18 @@ slice_specs:
         dev: true
         reason: Playwright provider for Vitest browser mode
       - name: '@playwright/test'
-        range: 1.63.0
+        range: 1.64.0
         dev: true
         reason: end-to-end tests
       - name: playwright
-        range: 1.63.0
+        range: 1.64.0
         dev: true
         reason: Direct Playwright provider dependency, matching @playwright/test
     slice: 2
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire project-scaffold
     purpose: One command proves the whole tree is green, and the no-mocks ban is
       enforced instead of hoped for.
@@ -169,7 +180,10 @@ slice_specs:
         dev: true
         reason: run the TypeScript guard script
     slice: 3
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test project-scaffold
     purpose: Prove the chain runs end to end and the guard bites.
     interface:
@@ -189,3 +203,6 @@ slice_specs:
       - npm ci, browser setup, build, typecheck, lint and check all succeed
         under the declared supported Node version.
     slice: 4
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

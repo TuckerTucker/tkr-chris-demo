@@ -10,36 +10,48 @@ slice_specs:
     errors:
       - Errors held in `error`, rendered in place
     interface:
-      - 'export interface RoundListItem { round: Round; totals: RoundTotals }'
+      - 'export interface RoundListItem { round: StoredRound; totals:
+        RoundTotals }'
       - 'export function useRoundList(c: Container): { inProgress: RoundListItem
         | null; finished: RoundListItem[]; loading: boolean; error: StorageError
         | null; reload(): Promise<void> }'
     purpose: 'Load the log: the round in progress first, then finished rounds newest
       first.'
-    status: approved
+    status: done
     tests:
       - Covered by round-log slice 4
     title: Round list view-model
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round list screen
     purpose: 'Browse every round. Wireframes: round-list-mobile.svg and
       round-list-empty-mobile.svg.'
     interface:
       - 'export function RoundList(): JSX.Element'
     behavior:
-      - In-progress row pinned at the top with a selection bar, hole n of 18,
-        score to par and Resume
+      - In-progress row pinned at the top with a selection bar, persisted draft
+        cursor or lifecycle step, score to par and Resume. Mention 18 holes only
+        after the stored decision to continue.
       - 'Finished rows: zero-padded index, date, ''9 holes''/''18 holes'' as
         metadata (not a badge), score to par in display type, stat line'
       - '''New round'' in the header, disabled with ''Round in progress'' while
         one exists'
       - 'Empty state: ''Your scorecards will appear here'' and ''Start your
         first round'''
+      - A pending abandoned round disables New round with an Undo or Dismiss
+        reason. Loading and read errors never masquerade as an empty log.
+      - Render local calendar dates without a UTC day shift; stale visible
+        content remains available during refresh failures.
     errors: []
     tests:
       - Covered by round-log slice 4
     slice: 2
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire round-history
     purpose: Register the log route as the start-up fallback.
     interface:
@@ -49,7 +61,10 @@ slice_specs:
     tests:
       - Typecheck; behaviour covered by slice 4
     slice: 3
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test round-history
     purpose: Prove the log lists rounds correctly.
     interface:
@@ -64,16 +79,23 @@ slice_specs:
       - In-progress round is pinned and Resume opens its next hole
       - '''New round'' is disabled with its reason while a round is in progress'
     slice: 4
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round detail view-model
     purpose: Load one round, correct a hole, remove and restore.
     interface:
-      - 'export function useRoundDetail(c: Container, roundId: string): { round:
-        Round | null; totals: RoundTotals | null; editing: number | null;
-        edit(n: number | null): void; saveHole(h: Hole): Promise<void>;
-        remove(): Promise<void>; restore(): Promise<void>; error: StorageError |
-        null }'
+      - 'export function useRoundDetail(c: Container, roundId: string,
+        navigateTo?: (path: string) => Promise<void>): { round: StoredRound |
+        null; totals: RoundTotals | null; editing: number | null; edit(n: number
+        | null): void; saveHole(h: Hole): Promise<void>; remove():
+        Promise<void>; restore(): Promise<void>; error: StorageError | null }'
     behavior:
+      - Own an isolated container.createSession editor and unregister it on
+        disposal. Restore its persisted correction cursor and drafts. Keep
+        editor identity stable across autosaves; explicit conflict recovery
+        resets its editor version.
       - saveHole uses repository.updateHole and recomputes totals
       - remove uses trash.removeRound and routes to the log with the undo bar
       - Restore and autosave per-hole correction drafts through the same
@@ -83,11 +105,18 @@ slice_specs:
         never owns or destroys undo state. If save/remove fails retain the
         screen, data and retry action.
     errors:
+      - Flush all writers before removal; suppress own removal refresh, then
+        dispose the removed editor before navigating. A failed navigation
+        retains removed context and global Undo rather than fabricating a
+        missing-round read.
       - Unknown id → StorageError not-found, rendered in place
     tests:
       - Covered by round-log slice 9
     slice: 5
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round detail screen with in-place correction
     purpose: 'Fix a logged round without leaving it. Wireframe:
       round-detail-mobile.svg.'
@@ -107,7 +136,10 @@ slice_specs:
     tests:
       - Covered by round-log slice 9
     slice: 6
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Remove round with undo
     purpose: 'Remove a round without a confirmation dialog. Wireframe:
       round-removed-undo-mobile.svg.'
@@ -124,7 +156,10 @@ slice_specs:
     tests:
       - Covered by round-log slice 9
     slice: 7
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire round-detail
     purpose: Register the detail route and link list rows to it.
     interface:
@@ -135,7 +170,10 @@ slice_specs:
     tests:
       - Typecheck; behaviour covered by slice 9
     slice: 8
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test round-detail
     purpose: Prove correction and undoable removal end to end.
     interface:
@@ -153,3 +191,6 @@ slice_specs:
         removal. Failed remove/restore/dismiss shows an actionable inline error
         and retains recoverable data.
     slice: 9
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

@@ -21,15 +21,18 @@ features:
       - Round detail, editing, delete (round-detail)
       - Statistics across rounds
     slice_decomposition_guide: A list view-model over the repository and round totals, then the screen.
-    status: planned
+    status: done
     user_story: As a golfer, I want to see all my rounds in one list with their key
       stats, so that I can look back over how I have played.
     wiring_assignment:
       territory:
         - src/ui/log/**
         - src/app/routes.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: round-detail
-    status: planned
+    status: done
     user_story: As a golfer looking back at a round, I want to see its hole-by-hole
       card, fix a mistake, or remove it, so that my log stays accurate.
     acceptance_criteria:
@@ -58,3 +61,6 @@ features:
       territory:
         - src/ui/log/**
         - src/app/routes.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

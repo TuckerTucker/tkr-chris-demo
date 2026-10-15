@@ -24,15 +24,18 @@ features:
     slice_decomposition_guide: Pure TypeScript functions with no I/O. One slice for
       the type and validation, one for the derived values, then wiring (the
       domain barrel) and tests.
-    status: planned
+    status: done
     user_story: As a golfer, I want each hole I enter checked and scored by the
       rules of golf, so that GIR, fairway eligibility and score against par are
       always right and never need working out by hand.
     wiring_assignment:
       territory:
         - src/domain/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: round-rules
-    status: planned
+    status: done
     user_story: As a golfer, I want my round totalled as I play and finished
       correctly whether I stop at 9 or play 18, with par taken from wherever it
       came from, so that my summary is right every time.
@@ -66,3 +69,6 @@ features:
     wiring_assignment:
       territory:
         - src/domain/**
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

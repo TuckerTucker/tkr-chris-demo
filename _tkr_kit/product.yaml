@@ -49,7 +49,7 @@ product:
     - Playing partners or group scoring
     - GPS or distance measuring
     - Shot-by-shot tracking beyond putts and fairway hit
-  status: approved
+  status: in_progress
   success_criteria:
     - A hole can be recorded with one hand on a phone, from par through to
       fairway, with no typing on a keyboard
@@ -87,7 +87,7 @@ product:
   release_policy:
     id: golf-scorecard-v1
     version: '1.0'
-    allowRiskAcceptance: false
+    allow_risk_acceptance: false
   quality_requirements:
     - id: scope-checks
       dimension: functional

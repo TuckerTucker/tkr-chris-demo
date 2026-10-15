@@ -28,7 +28,7 @@ features:
     slice_decomposition_guide: A view-model (hook) that holds the current hole's
       state and validation, built over the injected repository and ParSource,
       comes first. The screens follow as thin views over it.
-    status: planned
+    status: done
     user_story: As a golfer on the course, I want to start a round and record each
       hole in a couple of taps with one hand, seeing my running score, so that
       scoring never slows down my game.
@@ -36,8 +36,11 @@ features:
       territory:
         - src/ui/entry/**
         - src/app/routes.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: round-completion
-    status: planned
+    status: done
     user_story: As a golfer at the turn or on the last green, I want to choose
       whether to stop at 9 or carry on, and then see my round summed up, so that
       I finish with my stats in front of me.
@@ -68,3 +71,6 @@ features:
       territory:
         - src/ui/entry/**
         - src/app/routes.ts
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

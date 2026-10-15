@@ -11,11 +11,14 @@ slice_specs:
         background_color #FFFFFF, icons 192, 512, 512 maskable'
       - 'public/icons/: icon-192.png, icon-512.png, icon-maskable-512.png'
     purpose: Make the app installable to the home screen.
-    status: approved
+    status: done
     tests:
       - Covered by app-shell slice 4
     title: Web app manifest and icons
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Service worker and safe update
     purpose: Everything needed to play is cached after one visit, and an update
       never interrupts a round.
@@ -26,11 +29,31 @@ slice_specs:
         clientsClaim: true } }); public/manifest.webmanifest is the sole
         manifest.'
       - 'export interface OfflineStatus { readonly ready: boolean; readonly
-        error: string | null }'
+        error: string | null; readonly updateAvailable: boolean; readonly
+        updating: boolean }'
       - 'export function registerUpdates(opts: { canActivate():
         Promise<boolean>; onStatus(status: OfflineStatus): void; logger: {
         info(obj: object): void; error(obj: object): void } }): {
-        checkForUpdate(): Promise<void>; dispose(): void }'
+        checkForUpdate(): Promise<void>; applyUpdate(): Promise<void>;
+        dispose(): void }'
+      - src/app/sw-coordinator.js is emitted with the build identifier and
+        database-compatibility version as a Workbox import script. The waiting
+        worker enumerates live clients, requests nonce-bound safety ACKs and
+        defers for missing or incompatible clients. onStatus updating=true
+        synchronously locks mutation controllers before readiness evaluation;
+        abort, timeout and controller change release locks.
+      - applyUpdate is an explicit user action. Only its initiating tab may
+        reload; other clients retain their view. Build caches are retained for
+        identified live clients and the active worker. Cleanup requires every
+        live client to identify itself and defers during installation/waiting.
+        Asset fallback only reads same-origin app asset caches. Focus and safe
+        state checks repeat pruning so abandoned builds are removed.
+      - Build tooling has an isolated tsconfig.vite.json with WebWorker/Node
+        libraries and strict source checking. skipLibCheck is true only there
+        because assets-generator 1.0.4 and its unconfig dependency publish
+        invalid sharp/Args declaration references. App and test declarations
+        continue to use skipLibCheck=false; no synthetic types or peer
+        overrides.
     behavior:
       - Initial entry point registers the service worker immediately with
         updates deferred; composition-root later injects the real readiness
@@ -56,12 +79,20 @@ slice_specs:
     tests:
       - Covered by app-shell slice 4
     packages:
+      - name: '@vite-pwa/assets-generator'
+        range: 1.0.4
+        dev: true
+        reason: Required optional peer declarations imported by vite-plugin-pwa; exact
+          version satisfies its ^1.0.0 peer range with strict type checking
       - name: vite-plugin-pwa
         range: 1.3.0
         dev: true
         reason: service worker precaching and update lifecycle
     slice: 2
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire offline-shell
     purpose: Link the manifest and phone meta tags.
     interface:
@@ -74,7 +105,10 @@ slice_specs:
     tests:
       - Covered by app-shell slice 4
     slice: 3
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: in_progress
     title: Test offline-shell
     purpose: Prove the app loads with the network off.
     interface:
@@ -92,7 +126,7 @@ slice_specs:
         proves offline play/edit; app-shell tests do not require unbuilt
         screens.
     slice: 4
-  - status: approved
+  - status: done
     title: Theme tokens
     purpose: The Swiss look as CSS tokens, adapting to system preferences.
     interface:
@@ -112,7 +146,10 @@ slice_specs:
     tests:
       - Covered by the axe checks in app-shell slice 10
     slice: 5
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Stepper and chip toggle
     purpose: 'The two input controls every hole uses: large, keyboard-accessible and
       able to say why they are disabled.'
@@ -141,7 +178,10 @@ slice_specs:
     tests:
       - Covered by app-shell slice 10
     slice: 6
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Inline status and undo bar
     purpose: Status in place, and undo instead of confirmation dialogs.
     interface:
@@ -164,13 +204,18 @@ slice_specs:
     tests:
       - Covered by app-shell slice 10
     slice: 7
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Scorecard table
     purpose: The per-hole card shared by the round summary and the round detail.
     interface:
       - 'export function ScorecardTable(props: { holes: readonly Hole[]; totals:
         { out?: RoundTotals; in?: RoundTotals; total: RoundTotals };
-        onHoleSelect?(n: number): void; selectedHole?: number }): JSX.Element'
+        onHoleSelect?(n: number): void; selectedHole?: number;
+        selectionDisabled?: boolean; renderEditor?(n: number):
+        ComponentChildren; showBackNine?: boolean }): JSX.Element'
     behavior:
       - Use semantic table, th scope and td cells. A labelled button inside the
         hole cell selects a row; do not make tr a button or destroy table
@@ -179,11 +224,20 @@ slice_specs:
         tr with td colspan and labelled errors. Keyboard activation/focus works.
       - Columns HOLE PAR STR PUTT GIR FWY; derive GIR, show n/a on par 3. 18
         holes show Out/In/Total; 9 holes Total.
+      - showBackNine defaults true. A collapsed summary passes all holes and
+        sets it false to hide rows 10–18 while retaining full Out/In/Total.
+      - selectionDisabled keeps row buttons mounted but disables selection
+        during pending actions. Left/right arrows on the focused scroll region
+        pan the scorecard; arrows inside an editor retain their control-specific
+        behavior.
     errors: []
     tests:
       - Covered by app-shell slice 10
     slice: 8
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire ui-kit
     purpose: Expose the kit through one barrel.
     interface:
@@ -194,7 +248,10 @@ slice_specs:
     tests:
       - Typecheck
     slice: 9
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test ui-kit
     purpose: Prove the controls behave and are accessible.
     interface:
@@ -222,7 +279,10 @@ slice_specs:
         dev: true
         reason: accessibility assertions
     slice: 10
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Structured logger
     purpose: Structured JSON app events, handed to whatever needs them.
     interface:
@@ -242,7 +302,10 @@ slice_specs:
         dev: false
         reason: structured JSON logging (project convention)
     slice: 11
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Dependency container
     purpose: Build every collaborator once and inject it.
     interface:
@@ -280,6 +343,23 @@ slice_specs:
         modules. Round-detail uses a separate editor-session instance from the
         same injected factory, so browsing history never replaces the active
         round session.'
+      - 'SessionSnapshot additionally exposes localDrafts:
+        Readonly<Record<number, HoleDraft>> and conflictRound: StoredRound |
+        null, plus editorVersion: number. Local drafts include queued and failed
+        edits and survive route remounts; committed totals still derive only
+        from round.holes.'
+      - 'SessionController adds refresh(): Promise<void> and
+        resolveConflict(strategy: "reload" | "reapply"): Promise<void>. Retry
+        never silently resolves a conflict. Explicit reapply persists reviewed
+        local drafts against a freshly read revision but never confirms scores;
+        reload explicitly accepts current durable state.'
+      - 'Container adds createSession(): SessionController for isolated detail
+        editors, subscribe(listener: () => void): () => void for committed
+        changes, and flush(): Promise<void> over registered editors. Disposed
+        editors unregister; no teardown discards durable drafts.'
+      - Failed reads without retained local edits or failed mutation commands do
+        not prevent navigation; their errors remain available for explicit
+        retry. Unsaved edits and failed writes continue to block navigation.
     behavior:
       - parSource = createManualParSource(parMemory)
       - today defaults to the device's local date as yyyy-mm-dd
@@ -292,7 +372,10 @@ slice_specs:
     tests:
       - Covered by app-shell slice 16
     slice: 12
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Router and start-up routing
     purpose: Land on the round in progress, otherwise the log, with no server routes
       needed.
@@ -301,6 +384,8 @@ slice_specs:
         params: Record<string, string> }> }'
       - 'export const routes: RouteDef[] /* extended by feature wiring slices */'
       - 'export function Router(props: { routes: RouteDef[] }): JSX.Element'
+      - 'export function navigate(path: string): Promise<void>; navigation
+        flushes registered session writes before changing the hash.'
       - 'export async function startupPath(c: Container): Promise<string>'
       - 'export function resumePath(round: StoredRound): string; /round/finish
         is the recoverable pending-finalisation route registered by
@@ -317,11 +402,16 @@ slice_specs:
         before leaving. Failure keeps edits visible and provides retry. The
         later feature wiring supplies the real screens.
     errors:
+      - Navigation rejection preserves local drafts and the previous visible
+        route; callers render the error beside the action.
       - Unknown route renders an in-place 'Not found' with a link to the log
     tests:
       - Covered by app-shell slice 16
     slice: 13
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: In-place error boundary
     purpose: 'No error is console-only: every failure renders where it happened,
       with what to do next.'
@@ -336,7 +426,10 @@ slice_specs:
     tests:
       - Covered by app-shell slice 16
     slice: 14
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire composition-root
     purpose: Build once, recover pending undo, register safe updates and mount.
     interface:
@@ -360,7 +453,10 @@ slice_specs:
     tests:
       - Covered by app-shell slice 16
     slice: 15
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test composition-root
     purpose: Prove start-up routing and in-place start-up errors on the real app.
     interface:
@@ -388,3 +484,6 @@ slice_specs:
       - Pending removal survives navigation/restart; action failures and
         simultaneous tabs preserve single-active-round and token invariants.
     slice: 16
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

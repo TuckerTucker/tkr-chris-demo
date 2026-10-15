@@ -19,7 +19,7 @@ features:
       - Background sync, push notifications
     slice_decomposition_guide: Manifest and icons first, then the service worker and
       its update policy, then wire the manifest into index.html.
-    status: planned
+    status: in_progress
     user_story: As a golfer on a course with no signal, I want the app to open and
       work fully from my phone's home screen, so that I can score a round
       anywhere.
@@ -29,11 +29,14 @@ features:
         - index.html
         - public/**
         - src/app/sw-update.ts
+        - src/app/sw-coordinator.js
+        - tsconfig.json
+        - tsconfig.vite.json
         - package.json
         - package-lock.json
         - src/main.tsx
   - name: ui-kit
-    status: planned
+    status: done
     user_story: As a golfer using one hand in bright sun, I want large,
       high-contrast controls that work the same on every screen, so that
       entering and correcting scores is fast and hard to get wrong.
@@ -68,8 +71,11 @@ features:
         - src/ui/kit/**
         - package.json
         - package-lock.json
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
   - name: composition-root
-    status: planned
+    status: done
     user_story: As a golfer opening the app, I want to land on my round in progress,
       or on my log if no round is in progress, so that I never have to look for
       where I was.
@@ -106,3 +112,6 @@ features:
         - src/app/**
         - package.json
         - package-lock.json
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

@@ -32,7 +32,7 @@ slice_specs:
       - 'export function validateHoleDraft(draft: HoleDraft): HoleError[]'
     purpose: Define a hole and every rule that makes one valid, in one place the UI
       and storage both trust.
-    status: approved
+    status: done
     tests:
       - Ace (par 3, 1 stroke, 0 putts) is valid
       - putts = strokes is rejected with code 'putts-not-below-strokes'
@@ -41,7 +41,10 @@ slice_specs:
       - Reject NaN, Infinity, fractional numbers, unsafe integers, unknown
         fairway strings and out-of-range hole numbers; cover every error code.
     title: Hole type and validation
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Hole derivations
     purpose: Work out GIR, fairway eligibility and score to par so they are never
       asked for and never disagree with the inputs.
@@ -61,7 +64,10 @@ slice_specs:
       - GIR boundaries for par 3, 4 and 5 (on the line, and one stroke over)
       - Eligibility for par 3, 4 and 5
     slice: 2
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire hole-rules
     purpose: Expose the hole rules through one domain barrel.
     interface:
@@ -76,7 +82,10 @@ slice_specs:
     tests:
       - Typecheck passes when importing every name from src/domain
     slice: 3
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test hole-rules
     purpose: Pin every hole rule with table-driven tests.
     interface:
@@ -88,7 +97,10 @@ slice_specs:
     tests:
       - Removing any validation rule makes at least one row fail
     slice: 4
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round type and length rules
     purpose: Model a round and the 9-or-18 decision at the turn.
     interface:
@@ -129,7 +141,10 @@ slice_specs:
       - Reject duplicate/gapped/out-of-order holes, invalid dates, a finished
         8-hole round, and a continued round finished at 9.
     slice: 5
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Round totals
     purpose: One function gives the running totals during a round and the final
       totals after it.
@@ -155,7 +170,10 @@ slice_specs:
       - Correcting any hole recomputes all affected totals, including changing
         par to/from 3.
     slice: 6
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: ParSource port and manual ParSource
     purpose: 'The seam where par comes from: typed by the golfer today, a course
       card later.'
@@ -177,7 +195,10 @@ slice_specs:
       - Suggests the remembered par
       - Suggests 4 for an unknown hole
     slice: 7
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Wire round-rules
     purpose: Add the round rules and the ParSource port to the domain barrel.
     interface:
@@ -192,7 +213,10 @@ slice_specs:
     tests:
       - Typecheck passes importing every new name
     slice: 8
-  - status: approved
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification
+  - status: done
     title: Test round-rules
     purpose: Pin the round rules, totals and ParSource behaviour.
     interface:
@@ -207,3 +231,6 @@ slice_specs:
     tests:
       - All rows pass; changing the GIR formula fails the totals test
     slice: 9
+    evidence:
+      kind: manual
+      ref: docs/audits/2026-10-15-implementation.md#final-candidate-verification

@@ -1,0 +1,188 @@
+
+> golf-scorecard@1.0.0 check
+> npm run typecheck && npm run lint && npm run check:no-mocks && npm run check:architecture && npm run test:unit && npm run test:browser && npm run test:e2e
+
+
+> golf-scorecard@1.0.0 typecheck
+> tsc --noEmit && tsc --noEmit -p tsconfig.vite.json
+
+
+> golf-scorecard@1.0.0 lint
+> eslint . --max-warnings 0
+
+
+> golf-scorecard@1.0.0 check:no-mocks
+> node --import tsx scripts/check-no-mocks.ts
+
+No executable mocking constructs found in 94 source files.
+
+> golf-scorecard@1.0.0 check:architecture
+> node --import tsx scripts/check-architecture.ts
+
+Architecture: 50 modules satisfy boundaries, named exports and reachability.
+
+> golf-scorecard@1.0.0 test:unit
+> vitest run --project unit
+
+
+ RUN  v5.0.3 /Users/tucker/@tucker/tkr-chris-demo
+
+
+ Test Files  7 passed (7)
+      Tests  225 passed (225)
+   Start at  15:36:26
+   Duration  1.23s (tests 35%, transform 33%, import 31%, worker 1%)
+
+
+> golf-scorecard@1.0.0 test:browser
+> node --import tsx scripts/browser-tool.ts browser
+
+
+ RUN  v5.0.3 /Users/tucker/@tucker/tkr-chris-demo
+
+
+ Test Files  20 passed (20)
+      Tests  167 passed (167)
+   Start at  15:36:29
+   Duration  2.80s (worker 75%, tests 17%, import 8%)
+
+
+> golf-scorecard@1.0.0 test:e2e
+> npm run build && node --import tsx scripts/browser-tool.ts e2e
+
+
+> golf-scorecard@1.0.0 build
+> npm run typecheck && vite build
+
+
+> golf-scorecard@1.0.0 typecheck
+> tsc --noEmit && tsc --noEmit -p tsconfig.vite.json
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 63 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                  0.58 kB │ gzip:  0.34 kB
+dist/sw-coordinator.js           4.39 kB
+dist/assets/index-BcU3v-m-.css  13.60 kB │ gzip:  3.05 kB
+dist/assets/index-KrN6X_Ev.js   98.78 kB │ gzip: 31.60 kB
+
+✓ built in 198ms
+
+PWA v1.3.0
+mode      generateSW
+precache  8 entries (137.50 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-86650e7b.js
+[WebServer] (node:80946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 81 tests using 4 workers
+
+(node:80948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium-phone] › e2e/accessibility.spec.ts:103:1 › 320px and 200% text preserve stepper geometry, native keyboard focus and scorecard scrolling (1.4s)
+  ✓   4 [chromium-phone] › e2e/accessibility.spec.ts:164:1 › enlarged detail correction and persistent Undo remain accessible at 320px (1.4s)
+  ✓   5 [chromium-phone] › e2e/hole-entry.spec.ts:3:1 › remembered consecutive par threes need one confirmation and native double click saves only one (443ms)
+  ✓   6 [chromium-phone] › e2e/hole-entry.spec.ts:28:1 › two tabs expose current and local drafts before explicit reapply (839ms)
+  ✓   7 [chromium-phone] › e2e/hole-entry.spec.ts:49:1 › explicit fairway then confirm; invalid draft survives reload without entering totals (632ms)
+  ✓   9 [chromium-phone] › e2e/hole-entry.spec.ts:89:1 › narrow viewport and enlarged text keep controls reachable by keyboard (463ms)
+  ✓   8 [chromium-phone] › e2e/hole-entry.spec.ts:69:1 › par changes preserve numbers, correction returns to next draft, future routes recover (744ms)
+  ✓  10 [chromium-phone] › e2e/offline.spec.ts:7:1 › serves one valid manifest and correctly sized install icons (221ms)
+  ✓   1 [chromium-phone] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in light (3.5s)
+  ✓   2 [chromium-phone] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in dark (3.6s)
+  ✓  11 [chromium-phone] › e2e/offline.spec.ts:28:1 › reopens the mounted application offline in the same isolated persistent context (934ms)
+  ✓  14 [chromium-phone] › e2e/round-completion.spec.ts:59:1 › abandon, navigate, restart and undo preserve scores and invalid drafts; dismiss frees new round (917ms)
+  ✓  12 [chromium-phone] › e2e/round-completion.spec.ts:15:1 › nine-hole turn, recoverable corrections and starting again without a reload (1.7s)
+  ✓  16 [chromium-phone] › e2e/round-detail.spec.ts:41:1 › inline correction drafts survive navigation and restart; Cancel and Save preserve distinct meanings (872ms)
+  ✓  15 [chromium-phone] › e2e/round-completion.spec.ts:79:1 › a complete offline round survives closing and reopening its finished summary (1.5s)
+  ✓  17 [chromium-phone] › e2e/round-detail.spec.ts:66:1 › removal, restart and global Undo restore every saved field; another removal requires explicit dismissal (794ms)
+  ✓  20 [chromium-phone] › e2e/round-detail.spec.ts:143:1 › an unknown detail id has an inline recovery route and never shows a fabricated card (164ms)
+  ✓  18 [chromium-phone] › e2e/round-detail.spec.ts:94:1 › concurrent tabs compare saved and local correction drafts before explicit reapply (824ms)
+  ✓  13 [chromium-phone] › e2e/round-completion.spec.ts:38:1 › continue persists through restart, eighteen commits its summary, and full scorecard expands (2.7s)
+  ✓  21 [chromium-phone] › e2e/round-history.spec.ts:31:1 › empty log offers a clear first-round action and opens the start screen (267ms)
+  ✓  24 [chromium-phone] › e2e/smoke.spec.ts:3:1 › mounts the Golf Scorecard application (214ms)
+  ✓  22 [chromium-phone] › e2e/round-history.spec.ts:39:1 › history lists 9 and 18 holes newest first, pins active round and resumes its cursor (334ms)
+  ✓  23 [chromium-phone] › e2e/round-history.spec.ts:58:1 › an abandoned round reserves New round until the persistent undo is dismissed (492ms)
+  ✓  25 [chromium-phone] › e2e/startup.spec.ts:3:1 › startup storage errors retain data and offer an actionable retry (359ms)
+(node:81103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [chromium-phone] › e2e/round-detail.spec.ts:118:1 › complete offline round can restart and persist a correction while still offline (2.0s)
+(node:81114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [chromium-desktop] › e2e/accessibility.spec.ts:103:1 › 320px and 200% text preserve stepper geometry, native keyboard focus and scorecard scrolling (1.1s)
+  ✓  27 [chromium-desktop] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in light (3.3s)
+  ✓  30 [chromium-desktop] › e2e/accessibility.spec.ts:164:1 › enlarged detail correction and persistent Undo remain accessible at 320px (1.2s)
+  ✓  28 [chromium-desktop] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in dark (3.3s)
+  ✓  31 [chromium-desktop] › e2e/hole-entry.spec.ts:3:1 › remembered consecutive par threes need one confirmation and native double click saves only one (395ms)
+  ✓  33 [chromium-desktop] › e2e/hole-entry.spec.ts:49:1 › explicit fairway then confirm; invalid draft survives reload without entering totals (542ms)
+  ✓  32 [chromium-desktop] › e2e/hole-entry.spec.ts:28:1 › two tabs expose current and local drafts before explicit reapply (823ms)
+  ✓  34 [chromium-desktop] › e2e/hole-entry.spec.ts:69:1 › par changes preserve numbers, correction returns to next draft, future routes recover (760ms)
+  ✓  26 [chromium-phone] › e2e/update.spec.ts:98:1 › two builds preserve active/draft/undo state, retain live assets, and prune after the old tab closes (2.7s)
+  ✓  35 [chromium-desktop] › e2e/hole-entry.spec.ts:89:1 › narrow viewport and enlarged text keep controls reachable by keyboard (411ms)
+  ✓  36 [chromium-desktop] › e2e/offline.spec.ts:7:1 › serves one valid manifest and correctly sized install icons (213ms)
+  ✓  40 [chromium-desktop] › e2e/offline.spec.ts:28:1 › reopens the mounted application offline in the same isolated persistent context (747ms)
+  ✓  41 [chromium-desktop] › e2e/round-completion.spec.ts:59:1 › abandon, navigate, restart and undo preserve scores and invalid drafts; dismiss frees new round (803ms)
+  ✓  38 [chromium-desktop] › e2e/round-completion.spec.ts:15:1 › nine-hole turn, recoverable corrections and starting again without a reload (1.7s)
+  ✓  39 [chromium-desktop] › e2e/round-completion.spec.ts:38:1 › continue persists through restart, eighteen commits its summary, and full scorecard expands (2.4s)
+  ✓  43 [chromium-desktop] › e2e/round-detail.spec.ts:41:1 › inline correction drafts survive navigation and restart; Cancel and Save preserve distinct meanings (851ms)
+  ✓  42 [chromium-desktop] › e2e/round-completion.spec.ts:79:1 › a complete offline round survives closing and reopening its finished summary (1.4s)
+  ✓  44 [chromium-desktop] › e2e/round-detail.spec.ts:66:1 › removal, restart and global Undo restore every saved field; another removal requires explicit dismissal (759ms)
+  ✓  45 [chromium-desktop] › e2e/round-detail.spec.ts:94:1 › concurrent tabs compare saved and local correction drafts before explicit reapply (794ms)
+  ✓  47 [chromium-desktop] › e2e/round-detail.spec.ts:143:1 › an unknown detail id has an inline recovery route and never shows a fabricated card (146ms)
+  ✓  48 [chromium-desktop] › e2e/round-history.spec.ts:31:1 › empty log offers a clear first-round action and opens the start screen (239ms)
+  ✓  49 [chromium-desktop] › e2e/round-history.spec.ts:39:1 › history lists 9 and 18 holes newest first, pins active round and resumes its cursor (249ms)
+  ✓  51 [chromium-desktop] › e2e/smoke.spec.ts:3:1 › mounts the Golf Scorecard application (132ms)
+  ✓  50 [chromium-desktop] › e2e/round-history.spec.ts:58:1 › an abandoned round reserves New round until the persistent undo is dismissed (476ms)
+  ✓  52 [chromium-desktop] › e2e/startup.spec.ts:3:1 › startup storage errors retain data and offer an actionable retry (392ms)
+(node:81264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  46 [chromium-desktop] › e2e/round-detail.spec.ts:118:1 › complete offline round can restart and persist a correction while still offline (2.0s)
+(node:81274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  37 [chromium-phone] › e2e/update.spec.ts:161:1 › a controlled silent client defers activation and releases mutation locks until explicit retry (6.0s)
+(node:81315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  56 [webkit-phone] › e2e/accessibility.spec.ts:103:1 › 320px and 200% text preserve stepper geometry, native keyboard focus and scorecard scrolling (1.8s)
+  ✓  54 [webkit-phone] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in light (4.2s)
+  ✓  53 [chromium-desktop] › e2e/update.spec.ts:98:1 › two builds preserve active/draft/undo state, retain live assets, and prune after the old tab closes (3.1s)
+  ✓  58 [webkit-phone] › e2e/hole-entry.spec.ts:3:1 › remembered consecutive par threes need one confirmation and native double click saves only one (829ms)
+  ✓  55 [webkit-phone] › e2e/accessibility.spec.ts:48:3 › whole-screen accessibility across entry, completion and history in dark (4.2s)
+  ✓  57 [webkit-phone] › e2e/accessibility.spec.ts:164:1 › enlarged detail correction and persistent Undo remain accessible at 320px (1.6s)
+  ✓  61 [webkit-phone] › e2e/hole-entry.spec.ts:49:1 › explicit fairway then confirm; invalid draft survives reload without entering totals (856ms)
+  ✓  60 [webkit-phone] › e2e/hole-entry.spec.ts:28:1 › two tabs expose current and local drafts before explicit reapply (1.2s)
+  ✓  62 [webkit-phone] › e2e/hole-entry.spec.ts:69:1 › par changes preserve numbers, correction returns to next draft, future routes recover (1.1s)
+  ✓  63 [webkit-phone] › e2e/hole-entry.spec.ts:89:1 › narrow viewport and enlarged text keep controls reachable by keyboard (741ms)
+  ✓  64 [webkit-phone] › e2e/offline.spec.ts:7:1 › serves one valid manifest and correctly sized install icons (398ms)
+  ✓  66 [webkit-phone] › e2e/offline.spec.ts:28:1 › reopens the mounted application offline in the same isolated persistent context (1.7s)
+  ✓  68 [webkit-phone] › e2e/round-completion.spec.ts:59:1 › abandon, navigate, restart and undo preserve scores and invalid drafts; dismiss frees new round (1.2s)
+  ✓  65 [webkit-phone] › e2e/round-completion.spec.ts:15:1 › nine-hole turn, recoverable corrections and starting again without a reload (3.0s)
+  ✓  59 [chromium-desktop] › e2e/update.spec.ts:161:1 › a controlled silent client defers activation and releases mutation locks until explicit retry (6.0s)
+  ✓  67 [webkit-phone] › e2e/round-completion.spec.ts:38:1 › continue persists through restart, eighteen commits its summary, and full scorecard expands (4.1s)
+(node:81477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  70 [webkit-phone] › e2e/round-detail.spec.ts:41:1 › inline correction drafts survive navigation and restart; Cancel and Save preserve distinct meanings (1.4s)
+  ✓  71 [webkit-phone] › e2e/round-detail.spec.ts:94:1 › concurrent tabs compare saved and local correction drafts before explicit reapply (1.4s)
+  ✓  69 [webkit-phone] › e2e/round-completion.spec.ts:79:1 › a complete offline round survives closing and reopening its finished summary (2.6s)
+  ✓  74 [webkit-phone] › e2e/round-detail.spec.ts:143:1 › an unknown detail id has an inline recovery route and never shows a fabricated card (466ms)
+  ✓  75 [webkit-phone] › e2e/round-history.spec.ts:31:1 › empty log offers a clear first-round action and opens the start screen (436ms)
+  ✓  72 [webkit-phone] › e2e/round-detail.spec.ts:66:1 › removal, restart and global Undo restore every saved field; another removal requires explicit dismissal (1.5s)
+  ✓  78 [webkit-phone] › e2e/smoke.spec.ts:3:1 › mounts the Golf Scorecard application (359ms)
+  ✓  76 [webkit-phone] › e2e/round-history.spec.ts:39:1 › history lists 9 and 18 holes newest first, pins active round and resumes its cursor (580ms)
+  ✓  77 [webkit-phone] › e2e/round-history.spec.ts:58:1 › an abandoned round reserves New round until the persistent undo is dismissed (810ms)
+  ✓  79 [webkit-phone] › e2e/startup.spec.ts:3:1 › startup storage errors retain data and offer an actionable retry (595ms)
+  ✓  73 [webkit-phone] › e2e/round-detail.spec.ts:118:1 › complete offline round can restart and persist a correction while still offline (3.0s)
+  ✓  80 [webkit-phone] › e2e/update.spec.ts:98:1 › two builds preserve active/draft/undo state, retain live assets, and prune after the old tab closes (2.1s)
+  ✓  81 [webkit-phone] › e2e/update.spec.ts:161:1 › a controlled silent client defers activation and releases mutation locks until explicit retry (5.2s)
+
+  81 passed (41.6s)
