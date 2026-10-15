@@ -1,0 +1,180 @@
+capability: round-entry
+slices:
+  - number: 1
+    delivers: Shared typed HoleDraft editor using validateHoleDraft, nullable
+      required fairway, no silent numeric correction, persisted change callbacks
+      and derived GIR.
+    depends_on: []
+    feature: hole-entry
+    layer: ui
+    paths:
+      - src/ui/entry/useHoleEditor.ts
+      - src/ui/entry/HoleEditor.tsx
+    status: planned
+    story_ids: []
+    title: Hole editor
+  - feature: hole-entry
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - src/ui/entry/useRoundSession.ts
+    delivers: 'Hook adapter over injected shared session: serialized draft autosave
+      and atomic confirm/correct, with revision conflict recovery, accurate save
+      state and resume cursor.'
+    title: Round session
+    layer: service
+    story_ids: []
+    status: planned
+  - feature: hole-entry
+    number: 3
+    depends_on:
+      - 2
+    paths:
+      - src/ui/entry/StartRound.tsx
+    delivers: A one-tap Start round screen showing today's date, which goes to hole 1.
+    title: Start round screen
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: hole-entry
+    number: 4
+    depends_on:
+      - 2
+    paths:
+      - src/ui/entry/HoleEntry.tsx
+      - src/ui/entry/RunningScore.tsx
+    delivers: 'The hole screen: a RunningScore header (score to par, holes played)
+      above the HoleEditor and a thumb-reach Confirm button. Shows the saved
+      hole''s GIR on confirm, and shows a save error inline.'
+    title: Hole entry screen and running score
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: hole-entry
+    number: 5
+    depends_on:
+      - 4
+    paths:
+      - src/ui/entry/HoleNav.tsx
+    delivers: Previous and next buttons plus a hole strip to jump to any recorded
+      hole. Reopening a hole edits it in place through updateHole, and running
+      totals refresh straight away.
+    title: Hole navigation and correction
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: hole-entry
+    number: 6
+    depends_on:
+      - 3
+      - 4
+      - 5
+    paths:
+      - src/ui/entry/index.ts
+      - src/app/routes.ts
+      - src/ui/entry/HoleEntry.tsx
+    delivers: Routes /round/start and /round/hole/:n are registered against the
+      router and the screens are exported.
+    title: Wire hole-entry
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: hole-entry
+    number: 7
+    depends_on:
+      - 6
+    paths:
+      - src/ui/entry/useHoleEditor.test.ts
+      - src/ui/entry/useRoundSession.test.ts
+      - e2e/hole-entry.spec.ts
+    delivers: Browser and e2e tests for explicit fairway selection, partial/invalid
+      draft recovery, rapid writes, failure retry, atomic corrections and
+      conflicts.
+    title: Test hole-entry
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 8
+    depends_on:
+      - 2
+    paths:
+      - src/ui/entry/useRoundCompletion.ts
+    delivers: '`useRoundCompletion(session)` follows nextStep: after hole 9 it
+      exposes the turn (finishAtNine or continueToTen); after hole 18 it
+      finishes. It also exposes abandon (remove to trash) with restore.'
+    title: Turn and finish logic
+    layer: service
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 9
+    depends_on:
+      - 8
+    paths:
+      - src/ui/entry/TheTurn.tsx
+    delivers: 'After hole 9 the golfer sees front-nine totals and two large actions:
+      ''Finish — 9 holes'' and ''Play the back nine''.'
+    title: The turn screen
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 10
+    depends_on:
+      - 8
+    paths:
+      - src/ui/entry/RoundSummary.tsx
+    delivers: 'The finished round: score to par, strokes, putts, GIR %, fairways hit
+      / eligible (or ''n/a''), the ScorecardTable, and a link to the log.'
+    title: Round summary screen
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 11
+    depends_on:
+      - 8
+    paths:
+      - src/ui/entry/AbandonRound.tsx
+    delivers: An Abandon action that removes the in-progress round to trash right
+      away and shows the UndoBar. Undo restores the round where it was; when the
+      golfer explicitly dismisses undo the round is purged. There is no
+      confirmation dialog.
+    title: Abandon round with undo
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 12
+    depends_on:
+      - 6
+      - 9
+      - 10
+      - 11
+    paths:
+      - src/ui/entry/index.ts
+      - src/app/routes.ts
+      - src/ui/entry/HoleEntry.tsx
+      - src/ui/entry/useRoundSession.ts
+    delivers: Routes /round/turn and /round/:id/summary are registered; HoleEntry
+      routes to the turn after hole 9 and to the summary after hole 18;
+      AbandonRound is mounted in the hole screen's menu.
+    title: Wire round-completion
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-completion
+    number: 13
+    depends_on:
+      - 12
+    paths:
+      - src/ui/entry/useRoundCompletion.test.ts
+      - e2e/round-completion.spec.ts
+    delivers: Both round lengths, persisted turn choice and finalisation retry,
+      persistent abandon undo/dismiss, and full offline play/restart/edit.
+    title: Test round-completion
+    layer: integration
+    story_ids: []
+    status: planned

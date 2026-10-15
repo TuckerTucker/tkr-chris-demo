@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 812">
+<!-- Layout reference: slice specs define final controls, persistence, accessibility and fixtures. -->
+<g id="header__app-bar_0" transform="translate(0, 0)">
+<rect x="0" y="0" width="376" height="64" fill="#FFFFFF"/><text x="16" y="24" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">FRONT NINE COMPLETE · 15 OCT</text><text x="16" y="48" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000">The turn</text><line x1="0" y1="63.5" x2="376" y2="63.5" stroke="#000000" stroke-width="1"/>
+</g>
+
+<g id="summary__stat-large-front-nine_0" transform="translate(16, 96)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">FRONT NINE TO PAR</text><text x="0" y="64" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700" fill="#000000">+5</text>
+</g>
+
+<g id="summary__key-value-front-nine_1" transform="translate(16, 200)">
+<text x="0" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#000000">Strokes</text><text x="336" y="32" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">41</text><line x1="0" y1="47.5" x2="336" y2="47.5" stroke="#E0E0E0" stroke-width="1"/><text x="0" y="80" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#000000">Putts</text><text x="336" y="80" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">17</text><line x1="0" y1="95.5" x2="336" y2="95.5" stroke="#E0E0E0" stroke-width="1"/><text x="0" y="128" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#000000">Greens in regulation</text><text x="336" y="128" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">4 / 9</text><line x1="0" y1="143.5" x2="336" y2="143.5" stroke="#E0E0E0" stroke-width="1"/><text x="0" y="176" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#000000">Fairways hit</text><text x="336" y="176" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">4 / 7</text><line x1="0" y1="191.5" x2="336" y2="191.5" stroke="#E0E0E0" stroke-width="1"/>
+</g>
+
+<g id="choices__choice-caption-continue_0" transform="translate(16, 576)">
+<text x="0" y="8" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">CONTINUE TO HOLE 10</text>
+</g>
+
+<g id="choices__button-secondary-play-back-nine_1" transform="translate(16, 592)">
+<rect x="0" y="0" width="336" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="168" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#000000" text-anchor="middle">Play the back nine</text>
+</g>
+
+<g id="choices__choice-caption-finish_2" transform="translate(16, 680)">
+<text x="0" y="8" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">SAVE AS A 9-HOLE ROUND</text>
+</g>
+
+<g id="choices__button-secondary-finish-nine_3" transform="translate(16, 696)">
+<rect x="0" y="0" width="336" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="168" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#000000" text-anchor="middle">Finish — 9 holes</text>
+</g>
+
+</svg>

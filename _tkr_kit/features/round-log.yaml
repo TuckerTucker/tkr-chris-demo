@@ -1,0 +1,60 @@
+capability: round-log
+features:
+  - name: round-history
+    acceptance_criteria:
+      - Every finished round is listed newest first with date, 9/18, score vs
+        par, strokes, putts, GIR % and fairways hit / eligible
+      - The list is not paginated
+      - An in-progress round appears pinned at the top with a resume action
+      - An empty log shows a start-round action, not a blank screen
+    dependencies:
+      capabilities:
+        - scoring (round-rules totals)
+        - round-storage (round-repository)
+        - app-shell (ui-kit, composition-root)
+      features: []
+    scope_in:
+      - Round list screen
+      - Resumable in-progress row
+      - Empty state
+    scope_out:
+      - Round detail, editing, delete (round-detail)
+      - Statistics across rounds
+    slice_decomposition_guide: A list view-model over the repository and round totals, then the screen.
+    status: planned
+    user_story: As a golfer, I want to see all my rounds in one list with their key
+      stats, so that I can look back over how I have played.
+    wiring_assignment:
+      territory:
+        - src/ui/log/**
+        - src/app/routes.ts
+  - name: round-detail
+    status: planned
+    user_story: As a golfer looking back at a round, I want to see its hole-by-hole
+      card, fix a mistake, or remove it, so that my log stays accurate.
+    acceptance_criteria:
+      - The detail view shows the per-hole scorecard and round totals
+      - Tapping a hole edits it in place with the same rules and controls as
+        hole entry; totals recompute on save
+      - Removing a round shows an undo bar; undo restores it with all its holes;
+        no confirmation dialog appears
+      - Edits and removal are reflected in the round list straight away
+    scope_in:
+      - Round detail screen
+      - In-place hole correction
+      - Remove with undo
+    scope_out:
+      - Sharing or exporting a round
+    dependencies:
+      features:
+        - round-history (list the detail opens from and returns to)
+      capabilities:
+        - round-entry (hole editor view-model reused for correction)
+        - round-storage (update, delete, restore)
+        - app-shell (ui-kit undo bar, scorecard table)
+    slice_decomposition_guide: Reuse the hole-entry editor view-model for in-place
+      correction rather than writing a second validator.
+    wiring_assignment:
+      territory:
+        - src/ui/log/**
+        - src/app/routes.ts

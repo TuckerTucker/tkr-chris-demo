@@ -1,0 +1,390 @@
+capability: app-shell
+slice_specs:
+  - slice: 1
+    behavior:
+      - Icons are a monogram (no imagery), in line with the Swiss system
+      - Landscape orientation remains usable; do not lock the screen orientation.
+    errors: []
+    interface:
+      - 'public/manifest.webmanifest: name ''Golf Scorecard'', short_name
+        ''Scorecard'', display standalone, orientation any, theme_color #000000,
+        background_color #FFFFFF, icons 192, 512, 512 maskable'
+      - 'public/icons/: icon-192.png, icon-512.png, icon-maskable-512.png'
+    purpose: Make the app installable to the home screen.
+    status: approved
+    tests:
+      - Covered by app-shell slice 4
+    title: Web app manifest and icons
+  - status: approved
+    title: Service worker and safe update
+    purpose: Everything needed to play is cached after one visit, and an update
+      never interrupts a round.
+    interface:
+      - 'vite.config.ts: VitePWA({ manifest: false, registerType: ''prompt'',
+        injectRegister: false, workbox: { globPatterns:
+        [''**/*.{js,css,html,png,webmanifest}''], skipWaiting: false,
+        clientsClaim: true } }); public/manifest.webmanifest is the sole
+        manifest.'
+      - 'export interface OfflineStatus { readonly ready: boolean; readonly
+        error: string | null }'
+      - 'export function registerUpdates(opts: { canActivate():
+        Promise<boolean>; onStatus(status: OfflineStatus): void; logger: {
+        info(obj: object): void; error(obj: object): void } }): {
+        checkForUpdate(): Promise<void>; dispose(): void }'
+    behavior:
+      - Initial entry point registers the service worker immediately with
+        updates deferred; composition-root later injects the real readiness
+        check and logger without registering twice.
+      - Offline ready appears only after required assets are cached and the page
+        is controlled. Registration/cache failure is visible inline with retry;
+        no console-only failure or claim that first visit is immediately
+        offline-ready.
+      - No forced activation/reload. A waiting update is offered only with no
+        active round, pending draft/write or pending undo. Every live tab must
+        report safe through an explicit client handshake; missing
+        acknowledgement defers activation. Navigation to the log alone does not
+        imply safety.
+      - Validate a two-build update while an active round and a second tab are
+        open. Existing clients retain required cached assets; activate/reload
+        only at a safe point, and verify database migration compatibility.
+      - Host static build over HTTPS (localhost in tests); app assets/fonts are
+        self-hosted and cached. No API, analytics, CDN font or score-data
+        network requests.
+    errors:
+      - Registration, precache or update failure is reported by onStatus in
+        place with retry; keep usable cached app/data.
+    tests:
+      - Covered by app-shell slice 4
+    packages:
+      - name: vite-plugin-pwa
+        range: 1.3.0
+        dev: true
+        reason: service worker precaching and update lifecycle
+    slice: 2
+  - status: approved
+    title: Wire offline-shell
+    purpose: Link the manifest and phone meta tags.
+    interface:
+      - 'index.html: <link rel="manifest">, <meta name="theme-color">,
+        apple-touch-icon, viewport width=device-width, initial-scale=1,
+        viewport-fit=cover'
+    behavior:
+      - No user-scalable=no; pinch zoom stays available
+    errors: []
+    tests:
+      - Covered by app-shell slice 4
+    slice: 3
+  - status: approved
+    title: Test offline-shell
+    purpose: Prove the app loads with the network off.
+    interface:
+      - e2e/offline.spec.ts
+    behavior:
+      - Playwright phone project against the built app
+    errors: []
+    tests:
+      - 'Load built app, wait for offline-ready and service-worker control,
+        disconnect, close page and reopen same persistent context: mounted app
+        heading remains visible.'
+      - One valid manifest served with icons and correct paths; verify
+        installation manually on the target phone.
+      - Final release flow (owned by round-entry slice 13 and round-log slice 9)
+        proves offline play/edit; app-shell tests do not require unbuilt
+        screens.
+    slice: 4
+  - status: approved
+    title: Theme tokens
+    purpose: The Swiss look as CSS tokens, adapting to system preferences.
+    interface:
+      - 'src/ui/kit/theme.css: --ink #000, --ink-muted #666, --surface #FFF,
+        --surface-inset #F5F5F5, --accent #E3000B, --outline #E0E0E0; type scale
+        9/11/13/14/22/32/40; spacing 8-grid; --touch-min 48px; radius 0'
+    behavior:
+      - 'prefers-color-scheme: dark inverts ink and surface'
+      - 'prefers-contrast: more raises muted text to ink'
+      - prefers-reduced-motion disables transitions
+      - Text pairs meet WCAG 2.1 AA in light and dark
+      - Use rem-based text sizes with legible primary/body text, safe-area
+        insets and scrolling content above sticky actions. At 320px width and
+        200% text zoom controls remain reachable; do not copy 9px wireframe
+        labels as body text.
+    errors: []
+    tests:
+      - Covered by the axe checks in app-shell slice 10
+    slice: 5
+  - status: approved
+    title: Stepper and chip toggle
+    purpose: 'The two input controls every hole uses: large, keyboard-accessible and
+      able to say why they are disabled.'
+    interface:
+      - 'export function Stepper(props: { label: string; value: number; min:
+        number; max: number; onChange(v: number): void; hint?: string; error?:
+        string; disabledReason?: string }): JSX.Element'
+      - 'export function ChipToggle<T extends string>(props: { label: string;
+        options: ReadonlyArray<{ value: T; label: string }>; value: T | null;
+        onChange(v: T): void; disabledReason?: string }): JSX.Element'
+    behavior:
+      - Stepper uses role spinbutton with aria-valuemin/max/now;
+        ArrowUp/ArrowDown change by 1; − and + are 48px minimum
+      - ChipToggle uses the radiogroup pattern with roving tabindex
+      - disabledReason disables the control and renders the reason visibly
+        beneath it (wired with aria-describedby)
+      - error renders inline with a status dot and aria-invalid
+      - Every minus/plus button has a specific accessible name; focus and
+        aria-invalid refer to the actual control. Never suppress pinch zoom or
+        text scaling.
+      - Par bounds are 3–5; strokes minimum 1 and putts minimum 0, with
+        safe-integer upper bounds rather than an arbitrary golf-score cap. If
+        lowering strokes invalidates putts, retain the entered putts, show the
+        inline reason and disable Confirm.
+    errors: []
+    tests:
+      - Covered by app-shell slice 10
+    slice: 6
+  - status: approved
+    title: Inline status and undo bar
+    purpose: Status in place, and undo instead of confirmation dialogs.
+    interface:
+      - 'export function InlineStatus(props: { tone: ''error'' | ''warning'' |
+        ''info''; message: string; fixHint?: string }): JSX.Element'
+      - 'export function UndoBar(props: { message: string; pending: boolean;
+        error?: string; onUndo(): Promise<void>; onDismiss(): Promise<void> }):
+        JSX.Element'
+    behavior:
+      - InlineStatus announces errors once in context, without repeatedly
+        announcing every keystroke.
+      - UndoBar is a persistent layout region, not an overlay; there is no
+        countdown or unmount side effect. Show Undo and Dismiss with 48px
+        targets; disable both while an action is pending; failures keep the
+        region and expose retry.
+      - Maintain sensible focus after remove/restore without stealing focus on
+        every render; pending deletion is announced and reachable from all
+        routes.
+    errors: []
+    tests:
+      - Covered by app-shell slice 10
+    slice: 7
+  - status: approved
+    title: Scorecard table
+    purpose: The per-hole card shared by the round summary and the round detail.
+    interface:
+      - 'export function ScorecardTable(props: { holes: readonly Hole[]; totals:
+        { out?: RoundTotals; in?: RoundTotals; total: RoundTotals };
+        onHoleSelect?(n: number): void; selectedHole?: number }): JSX.Element'
+    behavior:
+      - Use semantic table, th scope and td cells. A labelled button inside the
+        hole cell selects a row; do not make tr a button or destroy table
+        semantics.
+      - Editable controls and buttons are at least 48px; editor is in a separate
+        tr with td colspan and labelled errors. Keyboard activation/focus works.
+      - Columns HOLE PAR STR PUTT GIR FWY; derive GIR, show n/a on par 3. 18
+        holes show Out/In/Total; 9 holes Total.
+    errors: []
+    tests:
+      - Covered by app-shell slice 10
+    slice: 8
+  - status: approved
+    title: Wire ui-kit
+    purpose: Expose the kit through one barrel.
+    interface:
+      - 'src/ui/kit/index.ts: named exports Stepper, ChipToggle, InlineStatus,
+        UndoBar, ScorecardTable; imports theme.css once'
+    behavior: []
+    errors: []
+    tests:
+      - Typecheck
+    slice: 9
+  - status: approved
+    title: Test ui-kit
+    purpose: Prove the controls behave and are accessible.
+    interface:
+      - src/ui/kit/*.test.tsx (five files)
+    behavior:
+      - Browser project; components render into the real DOM. No module mocking
+        (vi.mock / spyOn); collaborators are injected.
+    errors: []
+    tests:
+      - Stepper respects bounds and arrows without rewriting another field;
+        disabled chips show an associated reason and ignore input.
+      - UndoBar awaits actions, preserves errors, disables duplicates, never
+        calls destructive callbacks on unmount.
+      - Scorecard semantic table and in-cell buttons are keyboard accessible;
+        rows/totals render for 9/18.
+      - axe plus manual keyboard, light/dark contrast, 200% text zoom and narrow
+        viewport checks; no clipping/overlap of sticky actions.
+    packages:
+      - name: '@testing-library/preact'
+        range: 3.2.4
+        dev: true
+        reason: render and query Preact components in the browser
+      - name: axe-core
+        range: 4.13.0
+        dev: true
+        reason: accessibility assertions
+    slice: 10
+  - status: approved
+    title: Structured logger
+    purpose: Structured JSON app events, handed to whatever needs them.
+    interface:
+      - export type Logger = pino.Logger
+      - 'export function createLogger(opts?: { level?: pino.Level }): Logger'
+    behavior:
+      - Browser build of pino with asObject output
+      - 'Event names: round.started, hole.saved, round.finished, round.removed,
+        round.restored, storage.error, sw.update'
+      - No score data beyond ids and counts is logged
+    errors: []
+    tests:
+      - Covered by app-shell slice 16
+    packages:
+      - name: pino
+        range: 10.3.1
+        dev: false
+        reason: structured JSON logging (project convention)
+    slice: 11
+  - status: approved
+    title: Dependency container
+    purpose: Build every collaborator once and inject it.
+    interface:
+      - 'export interface Container { repository: RoundRepository; trash:
+        RoundTrash; parMemory: ParMemoryStore; parSource: ParSource; logger:
+        Logger; today(): string }'
+      - 'export async function buildContainer(opts: { dbName: string; logger:
+        Logger; today?: () => string }): Promise<Container>'
+      - 'export const ContainerContext: preact.Context<Container | null>'
+      - 'export function useContainer(): Container'
+      - 'Container additionally owns a shared round-session controller,
+        pending-removal controller, commit subscriptions and close(): void.
+        Controllers are defined against repository ports in src/app/session.ts
+        and src/app/undo.ts; UI hooks subscribe without rebuilding storage.'
+      - 'export interface SessionSnapshot { readonly round: StoredRound | null;
+        readonly loading: boolean; readonly pending: boolean; readonly error:
+        StorageError | null; readonly saveState: ''saving'' | ''saved'' |
+        ''error'' }'
+      - 'export interface SessionController { getSnapshot(): SessionSnapshot;
+        subscribe(listener: () => void): () => void; load(roundId?: string):
+        Promise<void>; start(): Promise<void>; saveDraft(draft: HoleDraft):
+        Promise<void>; discardDraft(holeNumber: number): Promise<void>;
+        save(hole: Hole): Promise<void>; correct(hole: Hole): Promise<void>;
+        continueRound(): Promise<void>; finish(): Promise<void>; flush():
+        Promise<void>; retry(): Promise<void>; dispose(): void }'
+      - 'export interface UndoController { getSnapshot(): { item: PendingRemoval
+        | null; pending: boolean; error: StorageError | null };
+        subscribe(listener: () => void): () => void; load(): Promise<void>;
+        remove(roundId: string, expectedRevision: number): Promise<void>;
+        undo(): Promise<StoredRound>; dismiss(): Promise<void>; dispose(): void
+        }'
+      - 'Container adds session: SessionController and undo: UndoController.
+        Factories in src/app/session.ts and src/app/undo.ts receive
+        repository/trash, today and logger as arguments; they import no UI
+        modules. Round-detail uses a separate editor-session instance from the
+        same injected factory, so browsing history never replaces the active
+        round session.'
+    behavior:
+      - parSource = createManualParSource(parMemory)
+      - today defaults to the device's local date as yyyy-mm-dd
+      - Load pending removal at startup. Central controllers serialize
+        mutations, notify log/detail subscribers and retain uncommitted UI
+        values on failures. Cleanup closes storage and listeners, and never
+        deletes drafts or undo data.
+    errors:
+      - useContainer outside the provider throws a programming error
+    tests:
+      - Covered by app-shell slice 16
+    slice: 12
+  - status: approved
+    title: Router and start-up routing
+    purpose: Land on the round in progress, otherwise the log, with no server routes
+      needed.
+    interface:
+      - 'export interface RouteDef { path: string; view: preact.ComponentType<{
+        params: Record<string, string> }> }'
+      - 'export const routes: RouteDef[] /* extended by feature wiring slices */'
+      - 'export function Router(props: { routes: RouteDef[] }): JSX.Element'
+      - 'export async function startupPath(c: Container): Promise<string>'
+      - 'export function resumePath(round: StoredRound): string; /round/finish
+        is the recoverable pending-finalisation route registered by
+        round-completion.'
+    behavior:
+      - 'Hash routing preserves valid explicit log/detail URLs. With no route,
+        resolve the active round and draft cursor: turn for undecided 9; hole 10
+        for continued 9; finish recovery for uncommitted 18; otherwise next
+        hole/draft or log.'
+      - Export a shared resumePath(round) resolver and use it for startup,
+        Resume and Undo. Invalid hole numbers, missing rounds and future holes
+        render an inline explanation and safe action.
+      - Navigation does not reload the document and flushes pending draft edits
+        before leaving. Failure keeps edits visible and provides retry. The
+        later feature wiring supplies the real screens.
+    errors:
+      - Unknown route renders an in-place 'Not found' with a link to the log
+    tests:
+      - Covered by app-shell slice 16
+    slice: 13
+  - status: approved
+    title: In-place error boundary
+    purpose: 'No error is console-only: every failure renders where it happened,
+      with what to do next.'
+    interface:
+      - 'export class ErrorBoundary extends Component<{ children:
+        ComponentChildren; logger: Logger }>'
+    behavior:
+      - Renders InlineStatus with the StorageError fixHint, or a generic
+        'Something went wrong — reload to try again'
+      - Logs storage.error / app.error with the error kind
+    errors: []
+    tests:
+      - Covered by app-shell slice 16
+    slice: 14
+  - status: approved
+    title: Wire composition-root
+    purpose: Build once, recover pending undo, register safe updates and mount.
+    interface:
+      - src/main.tsx builds container with guarded startup, registers updates
+        once with current app state, renders App, and handles initialization
+        failures directly.
+      - 'src/app/App.tsx: Provider > ErrorBoundary > Router plus shared
+        pending-removal/status regions.'
+    behavior:
+      - Async initialization and event-handler failures are caught explicitly;
+        component error boundaries cover rendering, not promise rejections.
+        Never purge trash at startup.
+      - Offer a retry for storage initialization without resetting local
+        records. Request persistent browser storage opportunistically where
+        available and show storage availability honestly.
+      - Call the update handle on safe-state changes and focus; the initial
+        shell status presenter is replaced by the application presenter without
+        a duplicate service-worker registration. Dispose old listeners when
+        ownership transfers.
+    errors: []
+    tests:
+      - Covered by app-shell slice 16
+    slice: 15
+  - status: approved
+    title: Test composition-root
+    purpose: Prove start-up routing and in-place start-up errors on the real app.
+    interface:
+      - src/app/container.test.ts
+      - src/app/router.test.tsx
+      - src/app/session.test.ts
+      - src/app/undo.test.ts
+      - e2e/startup.spec.ts
+      - e2e/update.spec.ts
+    behavior:
+      - Browser and e2e projects. No module mocking (vi.mock / spyOn);
+        collaborators are injected.
+    errors: []
+    tests:
+      - Real database container and startupPath/resumePath tests cover empty,
+        draft, turn, continued, finish and finished states before product routes
+        exist.
+      - Router tested with injected test-only views. Real log/entry route
+        assertions live in their feature tests after those screens are wired.
+      - Startup storage failures show actionable retry; async action errors do
+        not disappear into console.
+      - 'Two builds/tabs: waiting worker defers during active/draft/undo state
+        and activates only after every client is safe; offline reopening
+        preserves recorded rounds.'
+      - Pending removal survives navigation/restart; action failures and
+        simultaneous tabs preserve single-active-round and token invariants.
+    slice: 16

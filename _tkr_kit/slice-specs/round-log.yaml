@@ -1,0 +1,155 @@
+capability: round-log
+slice_specs:
+  - slice: 1
+    behavior:
+      - Reloads on window focus and after edits or removals
+      - No pagination
+      - Subscribe to committed edits, removals and restorations from the shared
+        container, re-read on focus and display loading separately from an empty
+        log.
+    errors:
+      - Errors held in `error`, rendered in place
+    interface:
+      - 'export interface RoundListItem { round: Round; totals: RoundTotals }'
+      - 'export function useRoundList(c: Container): { inProgress: RoundListItem
+        | null; finished: RoundListItem[]; loading: boolean; error: StorageError
+        | null; reload(): Promise<void> }'
+    purpose: 'Load the log: the round in progress first, then finished rounds newest
+      first.'
+    status: approved
+    tests:
+      - Covered by round-log slice 4
+    title: Round list view-model
+  - status: approved
+    title: Round list screen
+    purpose: 'Browse every round. Wireframes: round-list-mobile.svg and
+      round-list-empty-mobile.svg.'
+    interface:
+      - 'export function RoundList(): JSX.Element'
+    behavior:
+      - In-progress row pinned at the top with a selection bar, hole n of 18,
+        score to par and Resume
+      - 'Finished rows: zero-padded index, date, ''9 holes''/''18 holes'' as
+        metadata (not a badge), score to par in display type, stat line'
+      - '''New round'' in the header, disabled with ''Round in progress'' while
+        one exists'
+      - 'Empty state: ''Your scorecards will appear here'' and ''Start your
+        first round'''
+    errors: []
+    tests:
+      - Covered by round-log slice 4
+    slice: 2
+  - status: approved
+    title: Wire round-history
+    purpose: Register the log route as the start-up fallback.
+    interface:
+      - 'src/app/routes.ts: { path: ''/log'', view: RoundList }'
+    behavior: []
+    errors: []
+    tests:
+      - Typecheck; behaviour covered by slice 4
+    slice: 3
+  - status: approved
+    title: Test round-history
+    purpose: Prove the log lists rounds correctly.
+    interface:
+      - src/ui/log/useRoundList.test.ts
+      - e2e/round-history.spec.ts
+    behavior:
+      - No module mocking (vi.mock / spyOn); collaborators are injected.
+    errors: []
+    tests:
+      - Seeded 9- and 18-hole rounds list newest first with matching totals
+      - Empty log shows the start action
+      - In-progress round is pinned and Resume opens its next hole
+      - '''New round'' is disabled with its reason while a round is in progress'
+    slice: 4
+  - status: approved
+    title: Round detail view-model
+    purpose: Load one round, correct a hole, remove and restore.
+    interface:
+      - 'export function useRoundDetail(c: Container, roundId: string): { round:
+        Round | null; totals: RoundTotals | null; editing: number | null;
+        edit(n: number | null): void; saveHole(h: Hole): Promise<void>;
+        remove(): Promise<void>; restore(): Promise<void>; error: StorageError |
+        null }'
+    behavior:
+      - saveHole uses repository.updateHole and recomputes totals
+      - remove uses trash.removeRound and routes to the log with the undo bar
+      - Restore and autosave per-hole correction drafts through the same
+        serialized revision-aware writer. Save commits updateHole; Cancel
+        explicitly discards only that draft and restores the confirmed values.
+      - Removal delegates to the app-level pending-removal controller; routing
+        never owns or destroys undo state. If save/remove fails retain the
+        screen, data and retry action.
+    errors:
+      - Unknown id → StorageError not-found, rendered in place
+    tests:
+      - Covered by round-log slice 9
+    slice: 5
+  - status: approved
+    title: Round detail screen with in-place correction
+    purpose: 'Fix a logged round without leaving it. Wireframe:
+      round-detail-mobile.svg.'
+    interface:
+      - 'export function RoundDetail(props: { params: { id: string } }):
+        JSX.Element'
+    behavior:
+      - 'Header: date, holes, score to par; stat row'
+      - ScorecardTable with onHoleSelect; the selected row opens HoleEditor
+        (compact layout) inline beneath it
+      - Save and Cancel are 48px tall (the wireframe's 40px editor buttons are
+        raised to the touch-target norm)
+      - Reopening a detail with persisted correction drafts restores its
+        selected editor. Save and Cancel act on that draft; the list still uses
+        confirmed totals.
+    errors: []
+    tests:
+      - Covered by round-log slice 9
+    slice: 6
+  - status: approved
+    title: Remove round with undo
+    purpose: 'Remove a round without a confirmation dialog. Wireframe:
+      round-removed-undo-mobile.svg.'
+    interface:
+      - 'export function RemoveRound(props: { onRemove(): Promise<void> }):
+        JSX.Element'
+    behavior:
+      - Remove atomically creates the persistent pending-removal token, then
+        routes to the log. Undo and Dismiss are rendered by the app-level
+        controller; no countdown or unmount purge.
+      - Disable another removal with a visible reason until the current one is
+        undone or dismissed. On failure show retry beside the operation.
+    errors: []
+    tests:
+      - Covered by round-log slice 9
+    slice: 7
+  - status: approved
+    title: Wire round-detail
+    purpose: Register the detail route and link list rows to it.
+    interface:
+      - 'src/app/routes.ts: { path: ''/log/:id'', view: RoundDetail }'
+      - 'RoundList rows link to #/log/<id>'
+    behavior: []
+    errors: []
+    tests:
+      - Typecheck; behaviour covered by slice 9
+    slice: 8
+  - status: approved
+    title: Test round-detail
+    purpose: Prove correction and undoable removal end to end.
+    interface:
+      - src/ui/log/useRoundDetail.test.ts
+      - e2e/round-detail.spec.ts
+    behavior:
+      - No module mocking (vi.mock / spyOn); collaborators are injected.
+    errors: []
+    tests:
+      - Correction drafts survive navigation and restart; Cancel preserves the
+        confirmed hole; Save updates detail and list totals and par memory.
+      - Remove → navigate → restart → Undo restores every field; explicit
+        Dismiss purges only its token.
+      - Concurrent tabs cannot overwrite a correction or create a second pending
+        removal. Failed remove/restore/dismiss shows an actionable inline error
+        and retains recoverable data.
+    slice: 9

@@ -1,0 +1,71 @@
+capability: platform
+slices:
+  - number: 1
+    delivers: 'A Vite + Preact + TypeScript project as ES modules (`"type":
+      "module"`), strict mode on, ESLint recommended rules, and `dev`, `build`,
+      `typecheck` and `lint` scripts. Every dependency version is pinned
+      exactly.'
+    depends_on: []
+    feature: project-scaffold
+    layer: integration
+    paths:
+      - package.json
+      - tsconfig.json
+      - vite.config.ts
+      - eslint.config.js
+      - index.html
+      - src/main.tsx
+      - package-lock.json
+      - .npmrc
+      - .gitignore
+    status: planned
+    story_ids: []
+    title: Project scaffold
+  - feature: project-scaffold
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - vitest.config.ts
+      - playwright.config.ts
+      - e2e/fixtures.ts
+      - package.json
+      - package-lock.json
+      - src/storage/browser-smoke.test.ts
+    delivers: 'Vitest with two projects: `unit` (node, for pure domain code) and
+      `browser` (Vitest browser mode, Playwright provider, Chromium), so storage
+      tests run against real IndexedDB. Playwright end-to-end tests against
+      `vite preview`, with a mobile viewport preset. Fixtures give each test a
+      fresh, uniquely named database.'
+    title: Test tooling
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: project-scaffold
+    number: 3
+    depends_on:
+      - 1
+      - 2
+    paths:
+      - scripts/check-no-mocks.ts
+      - package.json
+      - package-lock.json
+    delivers: One check pipeline plus a syntax-aware executable mock-call guard
+      covering test helpers; string fixtures and comments remain data.
+    title: Wire project-scaffold
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: project-scaffold
+    number: 4
+    depends_on:
+      - 3
+    paths:
+      - e2e/smoke.spec.ts
+      - scripts/check-no-mocks.test.ts
+    delivers: Mounted-app smoke, meaningful mock guard cases for each banned call
+      and clean bootstrap checks under supported Node.
+    title: Test project-scaffold
+    layer: integration
+    story_ids: []
+    status: planned

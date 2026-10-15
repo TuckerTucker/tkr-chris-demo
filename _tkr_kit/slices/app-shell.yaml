@@ -1,0 +1,232 @@
+capability: app-shell
+slices:
+  - number: 1
+    delivers: Installable manifest and icons, responsive in portrait and landscape.
+    depends_on: []
+    feature: offline-shell
+    layer: integration
+    paths:
+      - public/manifest.webmanifest
+      - public/icons/**
+    status: planned
+    story_ids: []
+    title: Web app manifest and icons
+  - feature: offline-shell
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - vite.config.ts
+      - src/app/sw-update.ts
+      - src/main.tsx
+      - package.json
+      - package-lock.json
+    delivers: One precache manifest source, initial entry-point registration,
+      visible offline readiness and update activation gated on all live clients
+      being safe.
+    title: Service worker and safe update
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: offline-shell
+    number: 3
+    depends_on:
+      - 2
+    paths:
+      - index.html
+    delivers: Manifest link, theme-color and apple-touch-icon meta tags, and a
+      viewport set for a phone.
+    title: Wire offline-shell
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: offline-shell
+    number: 4
+    depends_on:
+      - 3
+    paths:
+      - e2e/offline.spec.ts
+    delivers: 'Playwright: load the app once, go offline with
+      context.setOffline(true), reload, and the app renders. The manifest is
+      served and valid.'
+    title: Test offline-shell
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 5
+    depends_on: []
+    paths:
+      - src/ui/kit/theme.css
+    delivers: CSS custom properties for colour, type scale and spacing; light, dark
+      (prefers-color-scheme) and high-contrast (prefers-contrast) variants;
+      reduced-motion handling; a minimum 48px touch target token; all text pairs
+      meet WCAG 2.1 AA.
+    title: Theme tokens
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 6
+    depends_on:
+      - 5
+    paths:
+      - src/ui/kit/Stepper.tsx
+      - src/ui/kit/ChipToggle.tsx
+    delivers: A Stepper (− value +, with min, max and a label, arrow-key support and
+      the ARIA spinbutton role) and a ChipToggle (single-select chips using the
+      ARIA radiogroup pattern). Both accept `disabledReason`, which disables the
+      control and shows the reason.
+    title: Stepper and chip toggle
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 7
+    depends_on:
+      - 5
+    paths:
+      - src/ui/kit/InlineStatus.tsx
+      - src/ui/kit/UndoBar.tsx
+    delivers: Inline status and persistent Undo/Dismiss region with awaited
+      callbacks, pending/error state and no countdown or unmount side effects.
+    title: Inline status and undo bar
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 8
+    depends_on:
+      - 5
+    paths:
+      - src/ui/kit/ScorecardTable.tsx
+    delivers: A per-hole grid (hole, par, strokes, putts, GIR, fairway) with out, in
+      and total rows for 18 holes or a single total for 9. Takes holes and
+      totals as props, offers an optional onHoleSelect, and uses semantic table
+      markup.
+    title: Scorecard table
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 9
+    depends_on:
+      - 6
+      - 7
+      - 8
+    paths:
+      - src/ui/kit/index.ts
+    delivers: The ui-kit barrel with named exports, and the theme stylesheet import.
+    title: Wire ui-kit
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: ui-kit
+    number: 10
+    depends_on:
+      - 9
+    paths:
+      - src/ui/kit/Stepper.test.tsx
+      - src/ui/kit/ChipToggle.test.tsx
+      - src/ui/kit/InlineStatus.test.tsx
+      - src/ui/kit/UndoBar.test.tsx
+      - src/ui/kit/ScorecardTable.test.tsx
+      - package.json
+      - package-lock.json
+    delivers: 'Browser-mode component tests: the stepper respects its bounds and
+      keyboard; a disabled chip shows its reason; the undo bar calls onUndo and
+      onExpire; the scorecard shows out/in/total for 18 holes and a single total
+      for 9; and an axe accessibility check passes on each component.'
+    title: Test ui-kit
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 11
+    depends_on: []
+    paths:
+      - src/app/logger.ts
+      - package.json
+      - package-lock.json
+    delivers: A pino browser logger factory that writes structured JSON events
+      (round.started, hole.saved, round.finished, round.removed, storage.error)
+      and is passed to whatever needs it.
+    title: Structured logger
+    layer: service
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 12
+    depends_on:
+      - 11
+    paths:
+      - src/app/container.ts
+      - src/app/session.ts
+      - src/app/undo.ts
+    delivers: '`buildContainer({dbName, logger})`, which opens storage and returns
+      {repository, trash, parMemory, parSource, logger} as one typed object,
+      provided to screens through a Preact context.'
+    title: Dependency container
+    layer: service
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 13
+    depends_on:
+      - 12
+    paths:
+      - src/app/router.tsx
+      - src/app/routes.ts
+    delivers: Hash routing and one shared resume resolver for draft, undecided turn,
+      continued back nine and pending finish; preserve valid explicit links.
+    title: Router and start-up routing
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 14
+    depends_on:
+      - 9
+      - 12
+    paths:
+      - src/app/ErrorBoundary.tsx
+    delivers: In-place render error boundary with actionable storage hints; async
+      handlers and startup explicitly catch their own rejections.
+    title: In-place error boundary
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 15
+    depends_on:
+      - 3
+      - 13
+      - 14
+    paths:
+      - src/main.tsx
+      - src/app/App.tsx
+    delivers: Composition root recovers drafts and pending undo, registers safe
+      updates once, mounts shared session and undo state, and catches async
+      startup errors without deleting data.
+    title: Wire composition-root
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: composition-root
+    number: 16
+    depends_on:
+      - 15
+    paths:
+      - src/app/container.test.ts
+      - e2e/startup.spec.ts
+      - src/app/router.test.tsx
+      - src/app/session.test.ts
+      - src/app/undo.test.ts
+      - e2e/update.spec.ts
+    delivers: Real-storage composition tests, injected-route startup tests and
+      two-build service-worker safety tests; product-route integration
+      assertions follow the screen features.
+    title: Test composition-root
+    layer: integration
+    story_ids: []
+    status: planned

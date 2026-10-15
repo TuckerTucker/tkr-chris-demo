@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 812">
+<!-- Layout reference: slice specs define final controls, persistence, accessibility and fixtures. -->
+<g id="header__app-bar_0" transform="translate(0, 0)">
+<rect x="0" y="0" width="376" height="64" fill="#FFFFFF"/><text x="16" y="24" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">PAR 4 · 15 OCT</text><text x="16" y="48" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000">Hole 05</text><text x="352" y="32" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">+2</text><text x="352" y="48" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666" text-anchor="end">TO PAR · 4 RECORDED</text><line x1="0" y1="63.5" x2="376" y2="63.5" stroke="#000000" stroke-width="1"/>
+</g>
+
+<g id="strip__hole-strip_0" transform="translate(0, 64)">
+<rect x="0" y="0" width="376" height="64" fill="#FFFFFF"/><rect x="16" y="8" width="48" height="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/><text x="40" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">01</text><rect x="64" y="8" width="48" height="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/><text x="88" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">02</text><rect x="112" y="8" width="48" height="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/><text x="136" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">03</text><rect x="160" y="8" width="48" height="48" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/><text x="184" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#000000" text-anchor="middle">04</text><rect x="208" y="8" width="48" height="48" fill="#000000"/><text x="232" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">05</text><rect x="256" y="8" width="48" height="48" fill="#F5F5F5"/><text x="280" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#666666" text-anchor="middle">06</text><rect x="304" y="8" width="48" height="48" fill="#F5F5F5"/><text x="328" y="40" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#666666" text-anchor="middle">07</text><line x1="0" y1="63.5" x2="376" y2="63.5" stroke="#E0E0E0" stroke-width="1"/>
+</g>
+
+<g id="controls__stepper-par_0" transform="translate(16, 144)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">PAR</text><text x="336" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666" text-anchor="end">FROM LAST TIME ON HOLE 05</text><rect x="0" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="32" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">−</text><text x="168" y="64" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700" fill="#000000" text-anchor="middle">4</text><rect x="272" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="304" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">+</text>
+</g>
+
+<g id="controls__stepper-strokes_1" transform="translate(16, 248)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">STROKES</text><rect x="0" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="32" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">−</text><text x="168" y="64" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700" fill="#000000" text-anchor="middle">4</text><rect x="272" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="304" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">+</text>
+</g>
+
+<g id="controls__stepper-putts_2" transform="translate(16, 352)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">PUTTS</text><rect x="0" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="32" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">−</text><text x="168" y="64" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="700" fill="#000000" text-anchor="middle">2</text><rect x="272" y="24" width="64" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="304" y="64" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000" text-anchor="middle">+</text>
+</g>
+
+<g id="controls__chip-toggle-fairway_3" transform="translate(16, 456)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">FAIRWAY</text><rect x="0" y="24" width="160" height="56" fill="#000000"/><text x="80" y="56" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">Hit</text><rect x="176" y="24" width="160" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/><text x="256" y="56" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" fill="#000000" text-anchor="middle">Missed</text>
+</g>
+
+<g id="controls__gir-indicator_4" transform="translate(16, 568)">
+<line x1="0" y1="0.5" x2="336" y2="0.5" stroke="#E0E0E0" stroke-width="1"/><text x="0" y="32" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">GIR · CALCULATED, NOT ENTERED</text><text x="0" y="56" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="400" fill="#666666">On the green in 2 on a par 4</text><text x="336" y="48" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000" text-anchor="end">Yes</text>
+</g>
+
+<g id="actions__button-primary-save-hole_0" transform="translate(16, 736)">
+<rect x="0" y="0" width="336" height="56" fill="#E3000B"/><text x="168" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">Save hole 05</text>
+</g>
+
+</svg>

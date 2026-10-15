@@ -1,0 +1,44 @@
+capability: platform
+features:
+  - name: project-scaffold
+    acceptance_criteria:
+      - '`npm run check` runs typecheck, lint, unit, browser and e2e tests and
+        fails on any failure'
+      - TypeScript strict mode, ES modules, ESLint recommended rules
+      - Storage tests run in a real browser through Vitest browser mode
+      - A guard fails the check if any test uses module mocking
+    dependencies:
+      capabilities: []
+      features: []
+    scope_in:
+      - Vite + TypeScript strict + Preact scaffold
+      - ESLint config
+      - Vitest node and browser projects
+      - Playwright config and fixtures
+      - No-mocks guard
+      - check script
+    scope_out:
+      - PWA manifest and service worker (app-shell/offline-shell)
+    slice_decomposition_guide: Scaffold, then test tooling, then the check script
+      and guard, then a smoke test proving the whole chain runs.
+    status: planned
+    user_story: As the developer building Golf Scorecard, I want one build and one
+      check command over a strict TypeScript project with real-browser test
+      tooling, so that every capability is built and verified the same way.
+    wiring_assignment:
+      territory:
+        - package.json
+        - tsconfig.json
+        - vite.config.ts
+        - eslint.config.js
+        - vitest.config.ts
+        - playwright.config.ts
+        - index.html
+        - scripts/**
+        - e2e/smoke.spec.ts
+        - e2e/fixtures.ts
+        - package-lock.json
+        - src/main.tsx
+        - .npmrc
+        - .gitignore
+        - src/storage/browser-smoke.test.ts

@@ -1,0 +1,50 @@
+# Model-router policy — git-canonical and deliberately secret-free.
+#
+# Two-tier default:
+#   - System default: the router is OFF (intent `disabled`), so Claude Code uses
+#     the native Claude subscription. Nothing in this file takes effect until you
+#     run `tkr router enable`; `tkr router disable` restores the native settings.
+#   - Router default (once enabled): every Claude Code model class (opus, sonnet,
+#     haiku) routes to Venice's `z-ai-glm-5-3-flash` deployment defined below.
+#
+# The VENICE_API_KEY value belongs in the selected tkr-kit vault; this file names
+# only its vault key, never the secret. Enable resolves a credential for EVERY
+# deployment listed here, referenced or not, so an unused deployment without a
+# stored key blocks startup — add one only with its key.
+
+version: 1
+
+aliases:
+  opus:
+    deployments:
+      - venice-glm-flash
+  sonnet:
+    deployments:
+      - venice-glm-flash
+  haiku:
+    deployments:
+      - venice-glm-flash
+
+deployments:
+  # Venice serves OpenAI-compatible chat completions only (no Responses API), so
+  # it rides LiteLLM's generic OpenAI-compatible `hosted_vllm` id: the `openai`
+  # id would route Anthropic Messages onto a Responses endpoint Venice does not
+  # have, and `openai_like` is unmapped for completion in the pinned 1.91.1. The origin is an
+  # explicit entry in core/model-router/policy.ts APPROVED_ORIGINS.
+  venice-glm-flash:
+    provider: hosted_vllm
+    model: z-ai-glm-5-3-flash
+    api_base: https://api.venice.ai/api/v1
+    api_key_ref: VENICE_API_KEY
+
+routing:
+  strategy: simple-shuffle
+  retries: 2
+  timeout_ms: 60000
+
+compatibility:
+  # Routing Claude Code to a non-Claude model (GLM via Venice) is experimental and is NOT
+  # supported by Anthropic. This opt-in is required for the router to enable at
+  # all, and enablement is still gated: `tkr router enable` fails closed until
+  # `tkr router verify` records passing version/exact-target-bound evidence.
+  allow_experimental_non_claude: true

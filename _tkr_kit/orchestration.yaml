@@ -1,0 +1,206 @@
+# Reviewed 2026-10-15. Full hashes regenerated after spec approval.
+orchestration:
+  name: golf-scorecard-v1
+  status: approved
+  strategy: platform -> scoring rules -> on-device storage -> app shell -> round entry -> round log (course-scorecard
+    deferred)
+  capability_waves:
+    wave_0_foundation:
+    - platform
+    wave_1_domain:
+    - scoring
+    wave_2_data:
+    - round-storage
+    wave_3_shell:
+    - app-shell
+    wave_4_screens:
+    - round-entry
+    wave_5_history:
+    - round-log
+  deferred_waves:
+    future:
+    - course-scorecard
+  feature_runs:
+  - feature: platform/feature/project-scaffold
+    plan_hash: 607e3364fd6d581512e6dc05ea074f590395990e435525685973f505c4ee0d38
+    waves: 5
+    agents: 5
+    after: []
+    gates:
+    - tests
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: scoring/feature/hole-rules
+    plan_hash: b78e5830a228706a84ff902ba30259c4eca818cf2d6b8e9d9f2aaba525fe20f7
+    waves: 5
+    agents: 5
+    after:
+    - platform/feature/project-scaffold
+    gates:
+    - tests
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: scoring/feature/round-rules
+    plan_hash: b53fde456aa8e8de2fa6588cc6151ddbf8f05b0b44cd582e7a9d2f5ff7e2f218
+    waves: 5
+    agents: 6
+    after:
+    - scoring/feature/hole-rules
+    gates:
+    - tests
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: round-storage/feature/round-repository
+    plan_hash: 216554506c2af3788913bb69049f459f9cddb11b2a6420af88779c90084e6b07
+    waves: 7
+    agents: 7
+    after:
+    - scoring/feature/round-rules
+    gates:
+    - tests
+    - migration
+    - assurance-functional
+    - retention
+    - routes
+    - exports
+    - orphans
+  - feature: round-storage/feature/par-memory
+    plan_hash: 86e5a06890282856337926576ce63a896e5e0da09a25d7d42ec500084472de6c
+    waves: 4
+    agents: 4
+    after:
+    - round-storage/feature/round-repository
+    gates:
+    - tests
+    - migration
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: app-shell/feature/offline-shell
+    plan_hash: 45a7c66490259a81dac5bc60bddca8ec4ee3f6e61d55bb62eaad6d654b87c3bd
+    waves: 5
+    agents: 5
+    after:
+    - round-storage/feature/par-memory
+    gates:
+    - tests
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: app-shell/feature/ui-kit
+    plan_hash: 1b5f5a5879128ad4c1a0ee195a770c29da2b554ac4144ce8764a8bbeccae4fb6
+    waves: 5
+    agents: 7
+    after:
+    - app-shell/feature/offline-shell
+    gates:
+    - a11y
+    - tests
+    - assurance-functional
+    - routes
+    - exports
+    - orphans
+  - feature: app-shell/feature/composition-root
+    plan_hash: 3cfba3630f18b0a1783172832eae7f6e0fb9017c1bc3307242e39a62308a1428
+    waves: 6
+    agents: 7
+    after:
+    - app-shell/feature/offline-shell
+    - app-shell/feature/ui-kit
+    gates:
+    - tests
+    - boundary
+    - assurance-functional
+    - a11y
+    - routes
+    - exports
+    - orphans
+  - feature: round-entry/feature/hole-entry
+    plan_hash: 886ee8925b992c8ba72be3a087fb877f5d5a4dfca593f098270834995851ea9e
+    waves: 7
+    agents: 8
+    after:
+    - app-shell/feature/composition-root
+    gates:
+    - a11y
+    - tests
+    - assurance-functional
+    - boundary
+    - routes
+    - exports
+    - orphans
+  - feature: round-entry/feature/round-completion
+    plan_hash: aadd79ead4097401a8d497b0fa79de9c1173c23d6c29a21cc3c32129ac3fd8a9
+    waves: 5
+    agents: 7
+    after:
+    - round-entry/feature/hole-entry
+    gates:
+    - tests
+    - boundary
+    - assurance-functional
+    - a11y
+    - routes
+    - exports
+    - orphans
+  - feature: round-log/feature/round-history
+    plan_hash: ab4548141902e847e5acebbd32c3a174e703763d1e1818477a887f9b1d710578
+    waves: 5
+    agents: 5
+    after:
+    - round-entry/feature/round-completion
+    gates:
+    - tests
+    - boundary
+    - assurance-functional
+    - a11y
+    - routes
+    - exports
+    - orphans
+  - feature: round-log/feature/round-detail
+    plan_hash: 389ba9993e21d549f26fc749b24e323e77a3ac2cdc8e07930d0c69d1ac1a7600
+    waves: 5
+    agents: 6
+    after:
+    - round-log/feature/round-history
+    gates:
+    - tests
+    - boundary
+    - assurance-functional
+    - a11y
+    - routes
+    - exports
+    - orphans
+  totals:
+    runs: 12
+    waves: 64
+    agents: 72
+  readiness:
+  - All 60 slice specs are approved; six active capabilities, twelve features and sixty slices are planned.
+    Course scorecard stays deferred. Approval authorizes implementation; release still requires passing
+    runtime evidence.
+  - Use Node ^22.13.0, ^24.0.0 or >=26.0.0, then npm ci and explicit browser setup. Current local Node
+    20.19.5 is incompatible with Vitest 5. TypeScript is pinned to compatible 6.0.3.
+  - 'Feature runs are serialized in listed order, including offline-shell and ui-kit: package.json and
+    package-lock.json are shared writable territory. Within a run only dependency-independent, disjoint
+    slice assignments may overlap.'
+  - Package owners may edit both package.json and package-lock.json. Regenerate and compare full plan
+    hashes immediately before each run; re-review changed contracts.
+  - The host coordinator must resolve real agent/skill defaults, applicable gate executors and evidence
+    locations before start_run. Labels alone are not executable implementations; no coordinator is attached
+    in this repo.
+  - Gate each slice against its own acceptance checks and already-built regressions. A tests gate cannot
+    demand later screens; cross-feature end-to-end acceptance runs after the owning UI feature. Never
+    record done without gate evidence.
+  - Browser setup is separate from test execution; first scaffold must mount src/main.tsx and exercise
+    actual IndexedDB before later features run.
+  - Before release run the complete check suite, offline full-round/restart/edit flow, two-build multi-tab
+    update tests and physical phone checks. Plan approval supplies no passing runtime evidence.

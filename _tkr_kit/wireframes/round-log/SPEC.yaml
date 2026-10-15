@@ -1,0 +1,53 @@
+section: round-log
+shell:
+  header: app bar — "Rounds" title; start-round action
+  layout: single column list / detail
+screens:
+- id: round-list
+  mobile: round-list-mobile.svg
+  route: /log
+  slices:
+  - round-log/2
+  purpose: 'The round log. An in-progress round is pinned at the top as a highlighted row ("In progress
+    · hole 6 · +2") with a Resume button. Below, finished rounds newest first, unpaginated. Each row shows
+    the date, 9 or 18 hole metadata, a large score vs par, and a compact stat line: strokes, putts, GIR
+    %, fairways hit / eligible. A Start round action is in the header.
+
+    '
+- id: round-list-empty
+  mobile: round-list-empty-mobile.svg
+  route: /log
+  slices:
+  - round-log/2
+  purpose: 'The round log with no rounds yet. Instead of a blank list, a short empty-state message and
+    one large "Start your first round" button.
+
+    '
+- id: round-detail
+  mobile: round-detail-mobile.svg
+  route: /log/:id
+  slices:
+  - round-log/6
+  - round-log/7
+  purpose: 'One logged round. A header with the date, 18 holes and score vs par, and a stat row (strokes,
+    putts, GIR %, fairways). The per-hole scorecard table follows, with hole 4''s row expanded in place
+    into an inline editor: Par, Strokes and Putts steppers, a Fairway chip toggle, and Save / Cancel.
+    A "Remove round" action sits at the bottom. It has no confirmation dialog; removal is undoable.
+
+    '
+- id: round-removed-undo
+  mobile: round-removed-undo-mobile.svg
+  route: /log
+  slices:
+  - round-log/7
+  purpose: 'The round log straight after a round was removed. The list shows the remaining rounds, and
+    an undo bar sits at the bottom in the thumb zone: "Round from 12 Oct removed" with a prominent Undo
+    action and no countdown. This bar is part of the layout, not a toast over the content.
+
+    '
+implementation_rules:
+- Slice specs own interaction and persistence contracts; SVGs are layout sketches, not score fixtures.
+- All interactive targets are at least 48px and text scales; layouts must work at 320px, 200% text zoom,
+  portrait and landscape.
+- Drafts autosave with Saving/Saved/Not saved feedback; confirmed totals never include drafts.
+- Undo is persistent in the app layout, without countdown or purge on navigation; use Undo or Dismiss.

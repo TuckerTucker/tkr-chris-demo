@@ -1,0 +1,272 @@
+capability: round-entry
+slice_specs:
+  - slice: 1
+    behavior:
+      - 'Fresh draft: par=suggestedPar, strokes=par, putts=2, fairway=null (n/a
+        on par 3). Restore saved drafts exactly; initialise defaults once and
+        never overwrite edits when an async suggestion arrives.'
+      - Par 3 disables fairway with its visible reason and represents it as n/a;
+        returning to par 4/5 requires an explicit Hit/Missed selection. Changes
+        to par or strokes never silently change entered strokes or putts.
+      - Validate HoleDraft directly; number is included and nullable fairway is
+        supported. toHole returns a validated Hole only when canSave, otherwise
+        raises a typed validation error.
+      - GIR depends only on valid par/strokes/putts; an unselected fairway does
+        not hide a calculable GIR. Invalid numeric combinations show a relevant
+        inline reason.
+      - Par with two putts on par 4/5 needs a fairway choice and Confirm (two
+        taps); par 3 needs Confirm only. Never preselect a fairway outcome.
+    errors: []
+    interface:
+      - Import HoleDraft and validateHoleDraft from the domain barrel; do not
+        declare a second draft shape.
+      - 'export function useHoleEditor(opts: { holeNumber: number; initial?:
+        HoleDraft; suggestedPar: number; onDraftChange(draft: HoleDraft): void
+        }): { draft: HoleDraft; set<K extends keyof HoleDraft>(k: K, v:
+        HoleDraft[K]): void; errors: HoleError[]; gir: boolean | null; canSave:
+        boolean; toHole(): Hole }'
+      - 'export function HoleEditor(props: { editor: ReturnType<typeof
+        useHoleEditor>; layout: ''full'' | ''compact'' }): JSX.Element'
+    purpose: One hole's draft, defaults and live validation, reused by hole entry
+      and by correcting a logged round.
+    status: approved
+    tests:
+      - Covered by round-entry slice 7
+    title: Hole editor
+  - status: approved
+    title: Round session
+    purpose: 'Drive a round in progress: start, save, advance, correct.'
+    interface:
+      - 'export function useRoundSession(c: Container): { round: StoredRound |
+        null; totals: RoundTotals; currentHole: number; start(): Promise<void>;
+        save(hole: Hole): Promise<void>; correct(hole: Hole): Promise<void>;
+        goTo(n: number): void; error: StorageError | null }'
+      - 'Session result additionally exposes loading: boolean, pending: boolean,
+        saveState: ''saving'' | ''saved'' | ''error'', saveDraft(draft:
+        HoleDraft): Promise<void>, retry(): Promise<void>; the shared controller
+        owns the write queue and revision.'
+    behavior:
+      - One shared round-session controller is created per app, injected into
+        routes, and subscribed to by the hook. It loads the persisted round,
+        drafts and cursor rather than starting a separate session per screen.
+      - Start creates a round using c.today; disable action while pending.
+        Save/correct flush prior draft writes then call the atomic repository
+        operation using the latest revision, update totals and derive nextStep.
+      - Serialize draft writes, retaining edits made while an earlier write is
+        pending. Show Saving until the latest change commits, Saved only after
+        tx.done, or Not saved with Retry and the retained draft. Flush on in-app
+        navigation; do not rely on unload for durability.
+      - Only advance after commit. Double taps are guarded. Revisions prevent
+        stale-tab overwrites; conflicts retain local values and offer
+        reload/reapply against current data. Re-read on focus and before a
+        mutation.
+      - Totals use confirmed holes only. Correcting an earlier hole retains any
+        next-hole draft and returns to that draft or the turn after
+        confirmation.
+      - Log committed round.started and hole.saved events with ids/counts only;
+        handle every rejected async action in place.
+    errors:
+      - StorageError held in error; keep all local edits and expose retry. A
+        pending write at abrupt process termination cannot be called saved.
+    tests:
+      - Covered by round-entry slice 7
+    slice: 2
+  - status: approved
+    title: Start round screen
+    purpose: 'Start a round with one tap. Wireframe:
+      _tkr_kit/wireframes/round-entry/start-round-mobile.svg.'
+    interface:
+      - 'export function StartRound(): JSX.Element'
+    behavior:
+      - Shows today's date and a single primary 'Start round' action in the
+        thumb zone; secondary link to the log
+      - 'Start navigates to #/round/hole/1'
+      - If an active round or pending abandonment exists, show Resume/Undo
+        instead of creating another. Direct navigation follows the same rule as
+        the log.
+    errors:
+      - Start failure renders InlineStatus above the button
+    tests:
+      - Covered by round-entry slice 7
+    slice: 3
+  - status: approved
+    title: Hole entry screen and running score
+    purpose: 'The screen the golfer uses on every hole. Wireframes:
+      hole-entry-mobile.svg and hole-entry-par3-mobile.svg.'
+    interface:
+      - 'export function HoleEntry(props: { params: { n: string } }):
+        JSX.Element'
+      - 'export function RunningScore(props: { totals: RoundTotals; holeNumber:
+        number; par: number }): JSX.Element'
+    behavior:
+      - Header shows hole number, par, running score and holes recorded; before
+        the turn do not claim the golfer committed to 18.
+      - HoleEditor full layout; Confirm hole is disabled with a visible reason
+        while invalid, loading or committing. Inline saved/pending/error status
+        stays next to the action.
+      - On confirmed commit advance by nextStep; keep derived GIR visible
+        without an arbitrary delay. Future holes are unavailable, invalid route
+        parameters resolve to the canonical resume location.
+    errors:
+      - 'Save failure: InlineStatus with fix hint; the draft stays on screen'
+    tests:
+      - Covered by round-entry slice 7
+    slice: 4
+  - status: approved
+    title: Hole navigation and correction
+    purpose: Jump to any recorded hole and fix it in place.
+    interface:
+      - 'export function HoleNav(props: { recorded: number; current: number;
+        onSelect(n: number): void }): JSX.Element'
+    behavior:
+      - Strip of zero-padded hole cells (01…18), 48px each, horizontally
+        scrollable, current hole highlighted
+      - Selecting a recorded hole loads it into the editor in correct mode;
+        saving calls session.correct
+    errors: []
+    tests:
+      - Covered by round-entry slice 7
+    slice: 5
+  - status: approved
+    title: Wire hole-entry
+    purpose: Register the hole-entry routes.
+    interface:
+      - 'src/app/routes.ts: { path: ''/round/start'', view: StartRound }, {
+        path: ''/round/hole/:n'', view: HoleEntry }'
+      - src/ui/entry/index.ts exports
+    behavior: []
+    errors: []
+    tests:
+      - Typecheck; behaviour covered by slice 7
+    slice: 6
+  - status: approved
+    title: Test hole-entry
+    purpose: Prove the on-course flow on a phone viewport.
+    interface:
+      - src/ui/entry/useHoleEditor.test.ts
+      - src/ui/entry/useRoundSession.test.ts
+      - e2e/hole-entry.spec.ts
+    behavior:
+      - Hook tests run in the browser project over a real database. No module
+        mocking (vi.mock / spyOn); collaborators are injected.
+    errors: []
+    tests:
+      - Defaults, fairway-required state and par-3 handling; par/score edits
+        never silently modify other numeric inputs.
+      - 'E2E: select fairway then Confirm a par with two putts; par 3 needs
+        Confirm only.'
+      - 'Reload/reopen while editing a new or existing hole, including invalid
+        partial values: recover the draft, editor position and previous
+        confirmed totals.'
+      - Rapid inputs followed by confirm, double taps and a failing draft write
+        preserve the latest draft and show accurate save state.
+      - Par suggestions never overwrite edits; correction changes totals and par
+        memory atomically; conflicts preserve local edits.
+    slice: 7
+  - status: approved
+    title: Turn and finish logic
+    purpose: The decision at the turn and the end of the round.
+    interface:
+      - 'export function useRoundCompletion(session: ReturnType<typeof
+        useRoundSession>, c: Container): { step: NextStep; pending: boolean;
+        error: StorageError | null; finishAtNine(): Promise<void>;
+        continueToTen(): Promise<void>; finish(): Promise<void>; abandon():
+        Promise<void>; restore(): Promise<void> }'
+    behavior:
+      - At 9 undecided route to the turn. continueToTen awaits
+        repository.continueRound before navigation. Restart after continuing
+        resumes hole 10.
+      - finishAtNine and finish await repository.finishRound before opening
+        summary. At 18 pending finish is recoverable; show Retry on failure and
+        never route to hole 19.
+      - Abandon delegates to the shared pending-removal controller and preserves
+        drafts; Undo restores its token and routes through the same resume
+        resolver. All actions are disabled while pending.
+    errors:
+      - Failures surface as StorageError in place
+    tests:
+      - Covered by round-entry slice 13
+    slice: 8
+  - status: approved
+    title: The turn screen
+    purpose: 'Stop at 9 or play on. Wireframe: the-turn-mobile.svg.'
+    interface:
+      - 'export function TheTurn(): JSX.Element'
+    behavior:
+      - 'Front-nine totals: score to par (display type), strokes, putts, GIR
+        n/9, fairways hit/eligible'
+      - 'Two equally weighted actions: ''Play the back nine'' and ''Finish — 9
+        holes''; no default, no dialog'
+    errors: []
+    tests:
+      - Covered by round-entry slice 13
+    slice: 9
+  - status: approved
+    title: Round summary screen
+    purpose: 'The finished round at a glance. Wireframe: round-summary-mobile.svg.'
+    interface:
+      - 'export function RoundSummary(props: { params: { id: string } }):
+        JSX.Element'
+    behavior:
+      - Headline score to par, stat row (strokes, putts, GIR %, fairways
+        hit/eligible or n/a)
+      - ScorecardTable with the back nine behind 'Show holes 10–18'
+      - 'Primary action: ''Go to round log'''
+    errors:
+      - 'Unknown round id: in-place not-found with a link to the log'
+    tests:
+      - Covered by round-entry slice 13
+    slice: 10
+  - status: approved
+    title: Abandon round with undo
+    purpose: Leave a round without a confirmation dialog.
+    interface:
+      - 'export function AbandonRound(props: { onAbandon(): Promise<void>;
+        onRestore(): Promise<void> }): JSX.Element'
+    behavior:
+      - Abandon flushes draft writes, atomically removes the active round and
+        returns to the log with the app-level persistent UndoBar.
+      - Undo restores and resumes the round; Dismiss purges only its token.
+        Errors remain inline with retry; navigation/unmount/restart never
+        purges.
+    errors: []
+    tests:
+      - Covered by round-entry slice 13
+    slice: 11
+  - status: approved
+    title: Wire round-completion
+    purpose: Register completion routes and connect the flow.
+    interface:
+      - 'src/app/routes.ts: { path: ''/round/turn'', view: TheTurn }, { path:
+        ''/round/:id/summary'', view: RoundSummary }'
+      - HoleEntry routes to the turn after hole 9 and to the summary after hole
+        18
+      - AbandonRound mounted in the hole screen's menu
+      - src/app/routes.ts adds /round/finish, rendering recoverable finalisation
+        via the completion flow.
+    behavior: []
+    errors: []
+    tests:
+      - Typecheck; behaviour covered by slice 13
+    slice: 12
+  - status: approved
+    title: Test round-completion
+    purpose: Prove both round lengths and undoable abandon end to end.
+    interface:
+      - src/ui/entry/useRoundCompletion.test.ts
+      - e2e/round-completion.spec.ts
+    behavior:
+      - No module mocking (vi.mock / spyOn); collaborators are injected.
+    errors: []
+    tests:
+      - Nine holes → finish → persisted nine-hole summary; eighteen holes →
+        committed summary with Out/In/Total.
+      - Reload at undecided turn, after continue before hole 10, and after hole
+        18 before finish commits. Failed continue/finish retains state and
+        supports retry.
+      - Abandon → navigate → reload → undo restores scores and partial draft.
+        Dismiss purges only the chosen removal; New round disabled while
+        abandonment is undoable.
+      - Complete a full round offline, restart offline and correct a logged
+        round; all totals and drafts persist.
+    slice: 13

@@ -1,0 +1,68 @@
+capability: scoring
+features:
+  - name: hole-rules
+    acceptance_criteria:
+      - A hole is valid only when par is 3–5, strokes ≥ 1 and 0 ≤ putts ≤
+        strokes − 1
+      - GIR is true exactly when strokes − putts ≤ par − 2
+      - Fairway is not applicable on par 3 and is yes/no on par 4 and par 5
+      - Score vs par for a hole is strokes − par
+      - Validation returns every broken rule by field, so the UI can show them
+        inline
+    dependencies:
+      capabilities: []
+      features: []
+    scope_in:
+      - Hole value type
+      - Hole validation with a field-level error list
+      - GIR derivation
+      - Fairway eligibility
+      - Score vs par per hole
+    scope_out:
+      - Round-level totals (round-rules)
+      - Persistence and UI
+    slice_decomposition_guide: Pure TypeScript functions with no I/O. One slice for
+      the type and validation, one for the derived values, then wiring (the
+      domain barrel) and tests.
+    status: planned
+    user_story: As a golfer, I want each hole I enter checked and scored by the
+      rules of golf, so that GIR, fairway eligibility and score against par are
+      always right and never need working out by hand.
+    wiring_assignment:
+      territory:
+        - src/domain/**
+  - name: round-rules
+    status: planned
+    user_story: As a golfer, I want my round totalled as I play and finished
+      correctly whether I stop at 9 or play 18, with par taken from wherever it
+      came from, so that my summary is right every time.
+    acceptance_criteria:
+      - Round totals (strokes, score vs par, putts, GIR count and %, fairways
+        hit / eligible) are computed from the hole records alone
+      - Totals work for any number of recorded holes, so running totals and
+        final totals use the same function
+      - A round can finish only at 9 or 18 recorded holes; after hole 9 the next
+        step is the turn decision
+      - Par for a hole comes from an injected ParSource; the manual source
+        suggests the last par entered for that hole number, otherwise 4
+      - Percentages with a zero denominator (e.g. no eligible fairways) are
+        reported as not applicable, never as 0% or NaN
+    scope_in:
+      - Round value type and status
+      - Round totals
+      - Round length rules and the turn after hole 9
+      - ParSource interface and the manual ParSource
+    scope_out:
+      - Course ParSource (course-scorecard)
+      - Storing par memory (round-storage/par-memory)
+    dependencies:
+      features:
+        - hole-rules (round totals fold hole-level derivations)
+      capabilities: []
+    slice_decomposition_guide: Round type and length rules first, then totals, then
+      the ParSource interface with its manual implementation. The manual source
+      takes its memory through an injected reader, so storage never enters the
+      domain.
+    wiring_assignment:
+      territory:
+        - src/domain/**

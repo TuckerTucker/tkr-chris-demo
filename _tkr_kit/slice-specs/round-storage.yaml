@@ -1,0 +1,274 @@
+capability: round-storage
+slice_specs:
+  - slice: 1
+    behavior:
+      - Preserve an existing StorageError, field errors and original cause.
+        QuotaExceededError maps to quota; SecurityError or unsupported IndexedDB
+        to unavailable; blocked upgrades to blocked; aborted/closed connections
+        to io; validated malformed stored records to corrupt; unknown failures
+        to io.
+      - 'Unavailable hint: Saving is unavailable in this browser. Check site
+        storage permissions or try a regular browser tab. Do not infer private
+        browsing from a generic exception.'
+      - Conflict means the stored revision changed, a round is already active,
+        or an undo is pending; preserve the local draft and offer
+        reload/reapply. Invalid inputs carry inline field errors. Never silently
+        reset a database.
+    errors: []
+    interface:
+      - export type StorageErrorKind = 'unavailable' | 'quota' | 'blocked' |
+        'corrupt' | 'not-found' | 'invalid' | 'conflict' | 'io'
+      - 'export class StorageError extends Error { readonly kind:
+        StorageErrorKind; readonly fixHint: string; readonly fieldErrors?:
+        readonly (HoleError | RoundError)[] }'
+      - 'export function toStorageError(e: unknown): StorageError'
+    purpose: Every storage failure reaches the UI as a typed error with a fix the
+      golfer can act on.
+    status: approved
+    tests:
+      - Each DOMException name maps to its kind and fix hint
+    title: Typed storage errors
+  - status: approved
+    title: Database schema and migrations
+    purpose: Open the on-phone database safely and migrate it forward without losing
+      a round.
+    interface:
+      - export const DB_VERSION = 1
+      - 'export interface GolfDB extends DBSchema { rounds: { key: string;
+        value: StoredRound; indexes: { ''by-status'': string; ''by-date'':
+        string } }; trash: { key: string; value: TrashedRound }; ''par-memory'':
+        { key: number; value: { holeNumber: number; par: number } } }'
+      - 'export function openGolfDatabase(name: string):
+        Promise<IDBPDatabase<GolfDB>>'
+      - 'export const migrations: ReadonlyArray<(db: IDBPDatabase<GolfDB>, tx:
+        IDBPTransaction<GolfDB, StoreNames<GolfDB>[], ''versionchange''>) =>
+        void>'
+      - 'export interface StoredRound extends Round { readonly drafts:
+        Readonly<Record<number, HoleDraft>>; readonly activeHole: number | null
+        }'
+      - 'export interface TrashedRound { readonly id: string; readonly token:
+        string; readonly round: StoredRound }'
+      - openGolfDatabase accepts optional injected version and migration list
+        for upgrade tests; production defaults to DB_VERSION and the production
+        migration list. Version-change hooks are injected callbacks so storage
+        does not render UI.
+    behavior:
+      - Migrations are indexed by target version and run in order from
+        oldVersion + 1
+      - Version 1 creates rounds (keyPath id, indexes by-status and by-date),
+        trash (keyPath id) and par-memory (keyPath holeNumber)
+      - A migration never deletes a store that holds rounds
+      - Drafts and activeHole are embedded in the round record, bounded to 18
+        entries, and are preserved in trash. No separate unbounded draft store.
+      - On versionchange close the old connection and show a reload action after
+        pending writes settle. A blocked open must not hang forever or later
+        leak a successful connection after rejection. Failed migrations abort
+        atomically; retain old data. Validate loaded records without silently
+        dropping bad rounds.
+    errors:
+      - Opening fails → StorageError via toStorageError
+      - Another tab holds an older version open → StorageError kind 'blocked'
+    tests:
+      - Fresh open creates all three stores
+      - Reopening an existing v1 database keeps its data
+    packages:
+      - name: idb
+        range: 8.0.3
+        dev: false
+        reason: typed promise wrapper over IndexedDB
+    slice: 2
+  - status: approved
+    title: RoundRepository
+    purpose: Durable round persistence, one committed transaction per hole.
+    interface:
+      - 'export interface RoundRepository { createRound(date: string):
+        Promise<StoredRound>; saveDraft(roundId: string, draft: HoleDraft,
+        expectedRevision: number): Promise<StoredRound>; discardDraft(roundId:
+        string, holeNumber: number, expectedRevision: number):
+        Promise<StoredRound>; saveHole(roundId: string, hole: Hole,
+        expectedRevision: number): Promise<StoredRound>; updateHole(roundId:
+        string, hole: Hole, expectedRevision: number): Promise<StoredRound>;
+        continueRound(roundId: string, expectedRevision: number):
+        Promise<StoredRound>; finishRound(roundId: string, expectedRevision:
+        number): Promise<StoredRound>; getInProgress(): Promise<StoredRound |
+        undefined>; listFinished(): Promise<StoredRound[]>; getRound(roundId:
+        string): Promise<StoredRound> }'
+      - 'export function createRoundRepository(db: IDBPDatabase<GolfDB>, ids: ()
+        => string): RoundRepository'
+    behavior:
+      - All mutations read current state, check expectedRevision, validate their
+        transition, increment revision and write in one readwrite transaction.
+        Resolve only after tx.done. Reads validate stored data; all errors are
+        typed StorageError.
+      - createRound checks both rounds and trash in the same transaction; reject
+        if an active round exists or an abandoned active round is awaiting undo.
+        Two concurrent creates yield at most one active round.
+      - saveHole appends only the next contiguous hole to an in-progress round.
+        At 9 without continuedTo18, refuse hole 10 until continueRound commits.
+        updateHole replaces only an existing hole, including in a finished
+        round, preserving its lifecycle.
+      - saveHole and updateHole atomically write the hole, par-memory entry,
+        cleared draft and resulting activeHole. A failed par-memory write rolls
+        the whole transaction back. There is no second UI par-memory write.
+      - saveDraft accepts structurally bounded editor values (including null
+        fairway and cross-field validation errors) without counting them in
+        totals. Persist every input change in order, keeping at most one draft
+        per hole. Set activeHole to the edited hole. discardDraft removes only
+        that edit; it never changes a confirmed score.
+      - continueRound persists continuedTo18=true only at the undecided turn.
+        finishRound checks canFinish and sets status finished atomically. Never
+        show the summary before that commit. Conflicting or repeated operations
+        re-read current state; do not duplicate holes or lose edits.
+      - 'listFinished sorts local date descending, then id. Cursor and draft
+        recovery is explicit: resume activeHole if a draft exists, otherwise
+        derive nextStep and the next hole.'
+      - Draft targets must be an existing recorded hole or the legal next hole;
+        no drafts past the undecided turn, past 18, or for a new hole in a
+        finished round. All stored draft keys/numbers agree. Finish refuses
+        unresolved correction drafts, with inline guidance to confirm or discard
+        them.
+      - Set activeHole after confirmation to another remaining draft when
+        present, otherwise the next enterable hole, or null at
+        turn/finish/finished. discardDraft recomputes the cursor the same way.
+        Revision conflict recovery never automatically overwrites the other tab;
+        show the two sets of values before explicit reapply.
+    errors:
+      - All validation, concurrency, missing records and IndexedDB failures map
+        to the declared StorageError kinds; failed writes leave the previous
+        durable record intact.
+    tests:
+      - Covered by round-storage slice 6
+    slice: 3
+  - status: approved
+    title: Remove, restore and purge
+    purpose: 'Removal is undoable: a removed round waits in trash until Undo or
+      explicit Dismiss.'
+    interface:
+      - 'export interface PendingRemoval { readonly token: string; readonly
+        round: StoredRound }'
+      - 'export interface RoundTrash { removeRound(roundId: string,
+        expectedRevision: number): Promise<PendingRemoval>; getPendingRemoval():
+        Promise<PendingRemoval | undefined>; restoreRound(token: string):
+        Promise<StoredRound>; purgeTrash(token: string): Promise<void> }'
+      - 'export function createRoundTrash(db: IDBPDatabase<GolfDB>, ids: () =>
+        string): RoundTrash'
+    behavior:
+      - Remove reads the round and expected revision and moves it to trash in
+        one transaction; at most one pending removal exists for this
+        installation. Reject a second removal with conflict until undo or
+        dismissal resolves the first.
+      - Undo is persistent across navigation, tab suspension and restart; there
+        is no countdown, unmount cleanup or start-up purge. The app-level undo
+        region has Undo and Dismiss actions.
+      - restoreRound validates the token, moves the entire StoredRound back and
+        removes that token atomically. Restoring an active round checks no other
+        active round exists in the same transaction.
+      - 'purgeTrash deletes only the explicitly dismissed token. Undo and
+        dismiss race in one transaction scope: at most one wins, the other gets
+        not-found. Failures retain the pending item and show Retry.'
+      - A pending abandoned round reserves the active-round slot; the new-round
+        action is disabled with a visible reason until Undo or Dismiss.
+        Finished-round removals do not prevent scoring.
+      - Restore increments revision so a stale pre-removal tab cannot write with
+        an old version. Undo and Dismiss remain idempotent at the controller
+        level by re-reading the token after a not-found race.
+    errors:
+      - Missing token → not-found; stale revision, another pending removal or
+        active-round collision → conflict; database failures → typed
+        StorageError.
+    tests:
+      - Covered by round-storage slice 6
+    slice: 4
+  - status: approved
+    title: Wire round-repository
+    purpose: One factory gives the composition root everything storage offers.
+    interface:
+      - 'export interface Storage { repository: RoundRepository; trash:
+        RoundTrash; close(): void }'
+      - 'export function createStorage(dbName: string, opts?: { ids?: () =>
+        string }): Promise<Storage>'
+      - src/storage/index.ts re-exports StorageError, StoredRound,
+        PendingRemoval, RoundRepository, RoundTrash and all public types; ids
+        defaults to crypto.randomUUID.
+    behavior:
+      - createStorage opens the database once and shares it
+    errors:
+      - Open failure rejects with StorageError
+    tests:
+      - Typecheck; behaviour covered by slice 6
+    slice: 5
+  - status: approved
+    title: Test round-repository
+    purpose: Prove durability and undo against real IndexedDB.
+    interface:
+      - src/storage/round-repository.test.ts
+      - src/storage/round-trash.test.ts
+      - src/storage/migrations.test.ts
+    behavior:
+      - Browser project; each test uses a unique database name and deletes it
+        afterwards. No module mocking (vi.mock / spyOn); collaborators are
+        injected.
+    errors: []
+    tests:
+      - Save and draft edits survive closing/reopening a real IndexedDB
+        connection; invalid partial drafts are preserved without changing
+        totals.
+      - 'Two database connections concurrently create, append, correct,
+        continue, finish and remove: enforce one active round, stale revision
+        errors and no lost updates.'
+      - Atomic hole/par-memory failure leaves both previous values unchanged;
+        corrections also update par memory.
+      - 'Reload immediately before/after the turn choice and final finish: no
+        skipped turn, repeated decision or hole 19.'
+      - Remove → restart → restore returns all scores and drafts; explicit token
+        dismissal only removes its item; restore/dismiss races are safe.
+      - Blocked upgrade, versionchange close and aborted transaction produce
+        typed recoverable errors. Real v1-to-v2 test migration preserves seeded
+        records and rolls back on failure; production remains v1 until a real
+        schema change is needed.
+      - Validate stored malformed rounds and impossible updates; no database
+        reset or silent data omission. Finished rounds sort deterministically.
+    slice: 6
+  - status: approved
+    title: Par memory store
+    purpose: Remember the last par entered for each hole number.
+    interface:
+      - 'export interface ParMemoryStore extends ParMemory {
+        rememberPar(holeNumber: number, par: number): Promise<void> }'
+      - 'export function createParMemory(db: IDBPDatabase<GolfDB>):
+        ParMemoryStore'
+    behavior:
+      - rememberPar replaces the stored value (put on keyPath holeNumber)
+      - lastPar returns undefined for an unknown hole
+      - Validate holeNumber 1–18 and par 3–5; reject invalid writes as
+        StorageError invalid. Confirmed hole mutations already update par-memory
+        atomically; rememberPar is not a second UI save step.
+    errors:
+      - Failures → StorageError
+    tests:
+      - Covered by round-storage slice 9
+    slice: 7
+  - status: approved
+    title: Wire par-memory
+    purpose: Add par memory to the storage factory.
+    interface:
+      - 'Storage gains parMemory: ParMemoryStore'
+    behavior:
+      - Same database connection as the repository
+    errors: []
+    tests:
+      - Typecheck; behaviour covered by slice 9
+    slice: 8
+  - status: approved
+    title: Test par-memory
+    purpose: Prove par memory is bounded and feeds the manual ParSource.
+    interface:
+      - src/storage/par-memory.test.ts
+    behavior:
+      - Browser project, real IndexedDB. No module mocking (vi.mock / spyOn);
+        collaborators are injected.
+    errors: []
+    tests:
+      - Remembering hole 7 as 3 then 5 leaves one entry, par 5
+      - createManualParSource over the real store suggests the remembered par
+    slice: 9

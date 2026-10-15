@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 812">
+<!-- Layout reference: slice specs define final controls, persistence, accessibility and fixtures. -->
+<g id="header__app-bar_0" transform="translate(0, 0)">
+<rect x="0" y="0" width="376" height="64" fill="#FFFFFF"/><text x="16" y="40" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="#000000">Golf Scorecard</text><line x1="0" y1="63.5" x2="376" y2="63.5" stroke="#000000" stroke-width="1"/>
+</g>
+
+<g id="main__round-date_0" transform="translate(16, 104)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">NEW ROUND</text><text x="0" y="56" font-family="Inter, system-ui, sans-serif" font-size="32" font-weight="700" fill="#000000">Thu 15 Oct 2026</text><text x="0" y="88" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" letter-spacing="1.44" fill="#666666">TODAY · STOP AFTER 9 OR PLAY 18</text>
+</g>
+
+<g id="main__round-intro_1" transform="translate(16, 224)">
+<text x="0" y="16" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#666666">Par, strokes, putts and fairway for</text><text x="0" y="40" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="400" fill="#666666">each hole. Every hole saves as you go.</text>
+</g>
+
+<g id="main__link-round-log_2" transform="translate(16, 648)">
+<text x="168" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#000000" text-anchor="middle">View round log</text>
+</g>
+
+<g id="actions__button-primary-start-round_0" transform="translate(16, 736)">
+<rect x="0" y="0" width="336" height="56" fill="#E3000B"/><text x="168" y="32" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">Start round</text>
+</g>
+
+</svg>

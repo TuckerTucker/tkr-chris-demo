@@ -1,0 +1,16 @@
+# Plan-exception allowlist — reviewed exceptions to plan-reconciliation findings
+# (governance.plan_audit). One entry per line; `<record>::<target>` scopes an entry to one
+# record. Every entry carries a dated `#` reason above it; delete the line when the reason
+# stops holding and the finding returns.
+
+# ── Prose references that are not continuations (orphan-continuation) ────────────────────
+# `scoring` names course-scorecard in scope_out ("Course data lookup (course-scorecard)").
+# That is a boundary declaration: course data belongs to the deferred capability, which plugs
+# into scoring's par-source interface as a dependent. It does not continue scoring's subject.
+# 2026-10-15.
+scoring::course-scorecard
+
+# `round-entry` names course-scorecard in scope_out ("Course selection and par lookup
+# (course-scorecard)") for the same reason: it states what round-entry does not own.
+# 2026-10-15.
+round-entry::course-scorecard

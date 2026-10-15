@@ -1,0 +1,325 @@
+capabilities:
+  - name: scoring
+    acceptance_criteria:
+      - GIR, totals and fairway % are pure functions of the hole records, and
+        their results never disagree with the inputs
+      - A par-3 hole is excluded from fairway eligibility in every total
+      - Invalid hole values (e.g. putts > strokes) are rejected by the model,
+        not only by the UI
+      - A 9-hole round and an 18-hole round summarise through the same functions
+      - Swapping the par source requires no change to scoring logic
+    depends_on:
+      - platform
+    description: 'The scoring rules of golf as pure, storage-free and UI-free logic:
+      the model for a hole and a round, GIR derivation, fairway eligibility,
+      score against par, round totals and the 9-or-18 round length. Par is taken
+      from an injected par source, so the same rules work whether par was typed
+      by the golfer or (later) supplied by a course''s card.'
+    layer: domain
+    provides_to:
+      - round-storage
+      - round-entry
+      - round-log
+      - course-scorecard
+    scope_in:
+      - 'Hole record: hole number, par, strokes, putts, fairway hit (yes / no /
+        not applicable)'
+      - 'Round record: date, holes played, status (in progress or finished),
+        ordered holes'
+      - GIR derived as strokes − putts ≤ par − 2; never stored as an input
+      - 'Fairway eligibility: par 4 and par 5 only; on par 3 the value is not
+        applicable'
+      - 'Validation of each hole: par 3–5, strokes ≥ 1, 0 ≤ putts ≤ strokes − 1
+        (the tee shot is never a putt)'
+      - Score vs par per hole and running total for the round so far
+      - 'Round totals: strokes, score vs par, putts, GIR count and %, fairways
+        hit / eligible'
+      - 'Round length: the turn after hole 9 is a decision point (finish at 9 or
+        continue to 18)'
+      - 'Par source interface with a manual implementation: the golfer''s entry,
+        defaulting to the par last entered for that hole number'
+    scope_out:
+      - Persistence (round-storage)
+      - Any screen or input control (round-entry, round-log)
+      - Course data lookup (course-scorecard)
+      - Handicap, net scores, Stableford or other formats
+      - Statistics across several rounds (trends, averages)
+    status: planned
+    paths:
+      - src/domain/**
+  - name: round-storage
+    layer: data
+    status: planned
+    description: 'On-device persistence for rounds: the in-progress round saved on
+      every hole, the log of finished rounds, and the per-hole-number par memory
+      that feeds the manual par source. Nothing leaves the device and no server
+      is involved. The app reaches storage through a repository interface, so
+      tests can supply a fresh real store.'
+    depends_on:
+      - scoring
+    provides_to:
+      - round-entry
+      - round-log
+      - app-shell
+    scope_in:
+      - 'Repository interface for rounds: create, save hole, finish, list
+        finished, get, update, delete, restore'
+      - Durable browser storage that survives refresh, a closed tab, a locked
+        phone and being offline
+      - Saving on every hole entry with no explicit save action
+      - Finding and resuming at most one in-progress round
+      - 'Delete with undo: a removed round is restorable until the golfer
+        chooses Undo or Dismiss'
+      - 'Par memory: the last par entered for each hole number'
+      - Versioned storage layout with forward migration, so a stored round is
+        never orphaned by an app update
+      - Detecting storage failure (quota, private mode, blocked storage) and
+        reporting it to the app as a typed error
+      - 'Retention declared per store: rounds are kept until the golfer deletes
+        them (op: user delete); par memory is bounded (one entry per hole
+        number, replaced on write); the undo buffer is bounded (purged only on
+        explicit Dismiss)'
+      - Revision-checked atomic mutations across tabs, including bounded
+        per-hole draft persistence and hole/par-memory commits.
+    scope_out:
+      - Cloud sync, backup or sharing
+      - Export and import (candidate for later; not in the first release)
+      - Multiple profiles or users
+      - Scoring rules (scoring)
+    acceptance_criteria:
+      - A hole recorded and then followed by a page reload is present after the
+        reload
+      - Killing the tab mid-round and reopening the app resumes the same round
+        at the next unrecorded hole
+      - A deleted round remains undoable across navigation and restart until
+        explicitly restored or dismissed; dismissal purges only its token
+      - A storage failure surfaces as a typed error the UI can show in place;
+        nothing fails silently
+      - Every store declares its retention answer and has none left undeclared
+    paths:
+      - src/storage/**
+  - name: app-shell
+    layer: integration
+    status: planned
+    description: 'The web app as a whole: an installable, offline-capable phone web
+      app, the composition root that wires scoring, storage and the screens
+      together through injection, navigation between the current round and the
+      log, and the shared presentation of errors and status in place.'
+    depends_on:
+      - scoring
+      - round-storage
+    provides_to:
+      - round-entry
+      - round-log
+    scope_in:
+      - 'Offline-first app shell: everything needed to play a round is cached on
+        the device after the first load'
+      - Installable to the phone's home screen
+      - 'Composition root: builds the scoring rules, the par source and the
+        round repository, and injects them into the screens'
+      - 'Start-up routing: opens the in-progress round if there is one,
+        otherwise the log with a start-round action'
+      - Navigation between the current round and the round log
+      - Shared in-place status and error presentation (no toasts, no
+        console-only errors)
+      - 'Respecting system preferences: dark mode, reduced motion, text size'
+      - Structured logging of app events (round started, hole saved, round
+        finished, storage error)
+    scope_out:
+      - Screen content for entering a round (round-entry) and browsing the log
+        (round-log)
+      - Push notifications or reminders
+      - Any server or hosted backend
+    acceptance_criteria:
+      - After one online load, offline-ready is shown, and the app then opens
+        and a full round can be played with the network off
+      - Opening with a round in progress resumes its saved draft/cursor, turn or
+        pending finish
+      - Every dependency of a screen is injected at the composition root; no
+        screen builds its own storage or scoring
+      - A storage or app error is shown on the screen where it happened, with
+        what to do next
+    paths:
+      - src/main.tsx
+      - src/app/**
+      - src/ui/kit/**
+      - public/**
+      - e2e/offline.spec.ts
+      - e2e/startup.spec.ts
+      - e2e/update.spec.ts
+  - name: round-entry
+    layer: ui
+    status: planned
+    description: 'Recording a round on the course: starting a round, entering each
+      hole with one hand, seeing the running score, choosing at the turn whether
+      to stop at 9 or go on to 18, correcting an earlier hole, and seeing the
+      summary when the round ends.'
+    depends_on:
+      - scoring
+      - round-storage
+      - app-shell
+    provides_to: []
+    scope_in:
+      - Start a round with today's date filled in and no other required input
+      - 'Hole-by-hole entry screen: par, strokes, putts and fairway hit as large
+        tap targets (steppers or chips), with no keyboard'
+      - Par filled in with the par last entered for that hole number, otherwise 4
+      - Strokes filled in with par and putts with 2, so a par with two putts
+        requires a fairway choice and one confirming tap on par 4/5, or just
+        confirmation on par 3
+      - Fairway control greyed out on par 3, with the reason given
+      - Inline validation as values change (e.g. putts cannot exceed strokes −
+        1); impossible combinations cannot be confirmed
+      - Running score vs par and holes played always visible
+      - 'The turn: after hole 9 is recorded, a choice to finish as a 9-hole
+        round or continue to hole 10'
+      - Going back to any recorded hole in the current round and correcting it
+        in place
+      - 'Round summary at the end: score vs par, strokes, putts, GIR %, fairways
+        hit / eligible, with a per-hole table'
+      - Abandoning an in-progress round, with undo
+      - 'Readable in sunlight: high contrast, large type, controls reachable by
+        thumb'
+    scope_out:
+      - Browsing or editing finished rounds (round-log)
+      - Course selection and par lookup (course-scorecard)
+      - Per-shot detail beyond putts and fairway hit
+      - Playing partners' scores
+    acceptance_criteria:
+      - A hole is recorded with one hand and no keyboard; a par with two putts
+        takes a fairway selection plus confirmation on par 4/5, or confirmation
+        alone on par 3
+      - GIR is shown for each hole and never asked for
+      - On a par 3 the fairway control is disabled with a visible reason, and
+        the hole does not count towards fairway %
+      - After hole 9 the golfer is asked to finish or continue, and both paths
+        produce a correct summary
+      - Correcting an earlier hole updates the running total and the summary
+        straight away
+      - Every control works by touch, keyboard and screen reader
+    paths:
+      - src/ui/entry/**
+      - e2e/hole-entry.spec.ts
+      - e2e/round-completion.spec.ts
+  - name: round-log
+    layer: ui
+    status: planned
+    description: 'The history of finished rounds: a list of every round with its
+      headline stats, a detail view showing the hole-by-hole card, correction of
+      a logged round in place, and removal with undo.'
+    depends_on:
+      - scoring
+      - round-storage
+      - app-shell
+      - round-entry
+    provides_to: []
+    scope_in:
+      - 'List of finished rounds, newest first, unpaginated: date, 9 or 18
+        holes, score vs par, strokes, putts, GIR %, fairways hit / eligible'
+      - 'Round detail: the hole-by-hole card (par, strokes, putts, GIR, fairway)
+        and the round totals'
+      - Correcting a hole in a logged round in place, with totals recomputed
+      - Removing a round from the log, with undo in place of a confirmation
+        dialog
+      - An empty log that offers starting the first round
+      - An unfinished round shown at the top of the log as resumable
+    scope_out:
+      - 'Statistics across rounds: trends, averages, charts (candidate for
+        later)'
+      - Search and filtering (not needed under 100 rounds; revisit if the log
+        grows)
+      - Export or sharing
+    acceptance_criteria:
+      - Every finished round appears in the list with stats that match its
+        detail view
+      - 9-hole and 18-hole rounds are both listed and clearly marked
+      - Editing a hole in a logged round updates that round's totals in both the
+        detail view and the list
+      - A removed round can be brought back by undo, and no confirmation dialog
+        appears
+      - With no rounds, the log offers starting one instead of showing a blank
+        screen
+    paths:
+      - src/ui/log/**
+      - e2e/round-history.spec.ts
+      - e2e/round-detail.spec.ts
+  - name: course-scorecard
+    layer: service
+    status: deferred
+    description: 'Future capability: pick a course and have its scorecard supply par
+      for each hole (and possibly yardage and stroke index), in place of the
+      golfer typing par. It is a second implementation of the par source in
+      scoring. Deferred because the golfer has not yet chosen where course data
+      comes from.'
+    depends_on:
+      - scoring
+    provides_to:
+      - round-entry
+    scope_in:
+      - Course par source implementing the scoring par source interface
+      - Course selection when starting a round
+      - Caching a chosen course's card on the device so it works offline
+      - A typed-in par still overrides the course card for a single hole
+    scope_out:
+      - Choosing the data source (open question; decided by the golfer before
+        this capability leaves deferred)
+      - Course maps, GPS or distances
+      - Slope and course rating, handicap
+    acceptance_criteria:
+      - Starting a round on a known course fills in every hole's par with no
+        golfer input
+      - Scoring logic is unchanged when the course par source is introduced
+      - A course card that has been used once works offline
+  - name: platform
+    layer: integration
+    status: planned
+    description: 'The project''s build and test foundation: the Vite + TypeScript
+      (strict) + Preact scaffold, ESLint, and the test tooling every other
+      capability writes into, including Vitest in node for pure domain code,
+      Vitest browser mode for code that needs a real browser, and Playwright
+      end-to-end. It sits at the root of the graph so no capability''s tests
+      depend on a capability that depends on it.'
+    depends_on: []
+    provides_to:
+      - scoring
+      - round-storage
+      - app-shell
+      - round-entry
+      - round-log
+    scope_in:
+      - Vite + TypeScript strict + Preact project as ES modules
+      - ESLint (recommended rules) and a typecheck script
+      - Vitest (node) for pure domain tests
+      - Vitest browser mode (Playwright provider) so storage tests run against
+        real IndexedDB, with no in-memory stand-in
+      - Playwright end-to-end tests against the built app
+      - 'A single `check` script: typecheck + lint + unit + browser + e2e'
+    scope_out:
+      - Web app manifest and service worker (app-shell)
+      - Any application code
+    acceptance_criteria:
+      - A clean checkout runs `npm ci && npm run setup:browsers && npm run
+        check` green
+      - TypeScript strict mode is on and ESLint passes with no warnings
+      - A storage test in browser mode opens a real IndexedDB database
+      - No test file uses module mocking (vi.mock, spyOn); a guard fails the
+        check if one appears
+      - Use a Node version satisfying every declared engine; current Node 20 is
+        not supported by the selected Vitest.
+    paths:
+      - package.json
+      - package-lock.json
+      - .npmrc
+      - .gitignore
+      - tsconfig.json
+      - vite.config.ts
+      - eslint.config.js
+      - vitest.config.ts
+      - playwright.config.ts
+      - index.html
+      - scripts/**
+      - e2e/fixtures.ts
+      - e2e/smoke.spec.ts
+      - _tkr_kit/**
+      - .claude/**
+      - docs/**

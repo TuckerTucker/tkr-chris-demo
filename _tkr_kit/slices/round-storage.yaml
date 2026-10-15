@@ -1,0 +1,144 @@
+capability: round-storage
+slices:
+  - number: 1
+    delivers: Typed StorageError kinds unavailable, quota, blocked, corrupt,
+      not-found, invalid, conflict and io, with preserved cause, inline field
+      errors and actionable hints.
+    depends_on: []
+    feature: round-repository
+    layer: data
+    paths:
+      - src/storage/errors.ts
+    status: planned
+    story_ids: []
+    title: Typed storage errors
+  - feature: round-repository
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - src/storage/database.ts
+      - src/storage/migrations.ts
+      - package.json
+      - package-lock.json
+    delivers: '`openGolfDatabase(name)` over `idb`, with an ordered list of
+      migrations that only runs forward. Version 1 creates the object stores
+      `rounds` (keyPath id, index by status and date), `trash` and `par-memory`.
+      Opening when IndexedDB is unavailable or blocked raises a StorageError.'
+    new_stores:
+      - name: indexeddb:golf-scorecard/rounds
+        retention:
+          kind: op
+          op: RoundTrash.removeRound then RoundTrash.purgeTrash(token)
+          trigger: manual
+          detail: Round and up to 18 embedded drafts are retained until user removal and
+            explicit undo dismissal.
+      - name: indexeddb:golf-scorecard/trash
+        retention:
+          kind: bounded
+          detail: At most one pending removal, including its embedded drafts; kept across
+            restart until explicit Undo or Dismiss. Only the matching token can
+            be purged.
+      - name: indexeddb:golf-scorecard/par-memory
+        retention:
+          kind: bounded
+          detail: Keyed by hole number 1-18 and replaced on write, so it never holds more
+            than 18 entries.
+    title: Database schema and migrations
+    layer: data
+    story_ids: []
+    status: planned
+  - feature: round-repository
+    number: 3
+    depends_on:
+      - 2
+    paths:
+      - src/storage/round-repository.ts
+    delivers: Revision-checked repository with draft autosave, contiguous
+      append/correction, persistent turn choice, atomic hole plus par-memory
+      commits and explicit finish; no lifecycle or persistence error escapes
+      untyped.
+    title: RoundRepository
+    layer: data
+    story_ids: []
+    status: planned
+  - feature: round-repository
+    number: 4
+    depends_on:
+      - 3
+    paths:
+      - src/storage/round-trash.ts
+    delivers: Atomic token-scoped removal, restoration and explicit dismissal; one
+      persistent undo item survives routing and restart, with active-round
+      collision protection.
+    title: Remove, restore and purge
+    layer: data
+    story_ids: []
+    status: planned
+  - feature: round-repository
+    number: 5
+    depends_on:
+      - 3
+      - 4
+    paths:
+      - src/storage/index.ts
+    delivers: The storage barrel and `createStorage(dbName)` factory, which returns
+      the repository with remove, restore and purge. The composition root calls
+      it.
+    title: Wire round-repository
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-repository
+    number: 6
+    depends_on:
+      - 5
+    paths:
+      - src/storage/round-repository.test.ts
+      - src/storage/round-trash.test.ts
+      - src/storage/migrations.test.ts
+    delivers: Real IndexedDB durability, draft recovery, atomic par writes,
+      concurrent revision conflicts, token undo, schema upgrade/rollback and
+      typed failure tests.
+    title: Test round-repository
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: par-memory
+    number: 7
+    depends_on:
+      - 2
+    paths:
+      - src/storage/par-memory.ts
+    delivers: '`createParMemory(db)`, which implements the domain''s ParMemory port
+      (read the last par for a hole number) plus `rememberPar(holeNumber, par)`,
+      which replaces the stored value on write.'
+    title: Par memory store
+    layer: data
+    story_ids: []
+    status: planned
+  - feature: par-memory
+    number: 8
+    depends_on:
+      - 5
+      - 7
+    paths:
+      - src/storage/index.ts
+    delivers: createStorage also returns the par memory reader and writer.
+    title: Wire par-memory
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: par-memory
+    number: 9
+    depends_on:
+      - 8
+    paths:
+      - src/storage/par-memory.test.ts
+    delivers: 'Browser-mode tests: remembering hole 7 as par 3 and then par 5 leaves
+      one entry with par 5; an unknown hole reads as undefined; the manual
+      ParSource built over the real store suggests the remembered par.'
+    title: Test par-memory
+    layer: integration
+    story_ids: []
+    status: planned

@@ -1,0 +1,70 @@
+capability: round-entry
+features:
+  - name: hole-entry
+    acceptance_criteria:
+      - Starting a round needs no input beyond one tap; the date is today
+      - The hole screen shows par, strokes, putts and fairway with par
+        pre-filled from par memory, strokes pre-filled with par and putts with 2
+      - Fairway is disabled on par 3 with the reason shown
+      - Values that break hole rules are flagged inline as they change, and the
+        confirm action is disabled until they are fixed
+      - Confirming saves the hole and advances to the next one; GIR for the hole
+        is shown
+      - Running score vs par and holes played are always visible
+      - Any earlier hole in the round can be reopened and corrected in place
+    dependencies:
+      capabilities:
+        - scoring (hole-rules, round-rules)
+        - round-storage (round-repository, par-memory)
+        - app-shell (ui-kit, composition-root)
+      features: []
+    scope_in:
+      - Start round screen
+      - Hole entry screen
+      - Running score header
+      - Hole navigation within the current round (previous / next / jump)
+    scope_out:
+      - The turn, summary and abandon (round-completion)
+    slice_decomposition_guide: A view-model (hook) that holds the current hole's
+      state and validation, built over the injected repository and ParSource,
+      comes first. The screens follow as thin views over it.
+    status: planned
+    user_story: As a golfer on the course, I want to start a round and record each
+      hole in a couple of taps with one hand, seeing my running score, so that
+      scoring never slows down my game.
+    wiring_assignment:
+      territory:
+        - src/ui/entry/**
+        - src/app/routes.ts
+  - name: round-completion
+    status: planned
+    user_story: As a golfer at the turn or on the last green, I want to choose
+      whether to stop at 9 or carry on, and then see my round summed up, so that
+      I finish with my stats in front of me.
+    acceptance_criteria:
+      - After hole 9 is recorded, the golfer is asked to finish as a 9-hole
+        round or continue to hole 10
+      - Finishing at 9 or after 18 marks the round finished and shows the summary
+      - The summary shows score vs par, strokes, putts, GIR %, fairways hit /
+        eligible and the per-hole scorecard
+      - An in-progress round can be abandoned with undo; no confirmation dialog
+        appears
+    scope_in:
+      - The turn decision screen
+      - Round summary screen
+      - Abandon round with undo
+    scope_out:
+      - Viewing the summary of a past round later (round-log)
+    dependencies:
+      features:
+        - hole-entry (round view-model the turn and finish extend)
+      capabilities:
+        - scoring (round-rules)
+        - app-shell (ui-kit scorecard table, undo bar)
+    slice_decomposition_guide: The turn and finishing logic extend the hole-entry
+      view-model; the summary is a view over round totals and the ui-kit
+      scorecard table.
+    wiring_assignment:
+      territory:
+        - src/ui/entry/**
+        - src/app/routes.ts

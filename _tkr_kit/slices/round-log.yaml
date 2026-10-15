@@ -1,0 +1,123 @@
+capability: round-log
+slices:
+  - number: 1
+    delivers: '`useRoundList(container)` loads finished rounds newest first with
+      their roundTotals, plus the in-progress round if there is one, and reloads
+      on focus and after edits.'
+    depends_on: []
+    feature: round-history
+    layer: service
+    paths:
+      - src/ui/log/useRoundList.ts
+    status: planned
+    story_ids: []
+    title: Round list view-model
+  - feature: round-history
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - src/ui/log/RoundList.tsx
+    delivers: The unpaginated list. Each row shows date, a 9 or 18 badge, score to
+      par, strokes, putts, GIR % and fairways. An in-progress row is pinned at
+      the top with Resume. The empty state offers Start your first round.
+    title: Round list screen
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-history
+    number: 3
+    depends_on:
+      - 2
+    paths:
+      - src/ui/log/index.ts
+      - src/app/routes.ts
+    delivers: Route /log is registered as the start-up fallback, and the screen is
+      exported.
+    title: Wire round-history
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-history
+    number: 4
+    depends_on:
+      - 3
+    paths:
+      - src/ui/log/useRoundList.test.ts
+      - e2e/round-history.spec.ts
+    delivers: 'A hook test over a real database with seeded 9- and 18-hole rounds
+      (order and totals). E2E: an empty log shows the start action; finished
+      rounds are listed with correct stats; an in-progress round is pinned and
+      resumes.'
+    title: Test round-history
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-detail
+    number: 5
+    depends_on:
+      - 1
+    paths:
+      - src/ui/log/useRoundDetail.ts
+    delivers: '`useRoundDetail(container, roundId)` loads the round and its totals,
+      offers editHole (through updateHole, then recomputes totals), and offers
+      remove and restore through the trash.'
+    title: Round detail view-model
+    layer: service
+    story_ids: []
+    status: planned
+  - feature: round-detail
+    number: 6
+    depends_on:
+      - 5
+    paths:
+      - src/ui/log/RoundDetail.tsx
+    delivers: The round header with totals and the ScorecardTable. Tapping a hole
+      opens the round-entry HoleEditor inline under that row, and saving updates
+      the totals in place.
+    title: Round detail screen with in-place correction
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-detail
+    number: 7
+    depends_on:
+      - 5
+    paths:
+      - src/ui/log/RemoveRound.tsx
+    delivers: Remove returns to the log with the UndoBar shown. Undo restores the
+      round; when undo is explicitly dismissed the round is purged. There is no
+      confirmation dialog.
+    title: Remove round with undo
+    layer: ui
+    story_ids: []
+    status: planned
+  - feature: round-detail
+    number: 8
+    depends_on:
+      - 3
+      - 6
+      - 7
+    paths:
+      - src/ui/log/index.ts
+      - src/app/routes.ts
+      - src/ui/log/RoundList.tsx
+    delivers: Route /log/:id is registered, and list rows link to the detail.
+    title: Wire round-detail
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-detail
+    number: 9
+    depends_on:
+      - 8
+    paths:
+      - src/ui/log/useRoundDetail.test.ts
+      - e2e/round-detail.spec.ts
+    delivers: Real-storage tests for correction draft recovery and cancel, matching
+      detail/list totals, persistent token undo/dismiss and concurrent/failing
+      operations.
+    title: Test round-detail
+    layer: integration
+    story_ids: []
+    status: planned

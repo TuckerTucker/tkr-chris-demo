@@ -1,0 +1,100 @@
+product:
+  name: Golf Scorecard
+  description: 'Golf Scorecard is a pocket scorecard that does the maths. It is a
+    web app for a single golfer, built for a phone on the course. Each hole
+    takes a few taps: par, strokes, putts, and whether the tee shot found the
+    fairway. From those, the app works out greens in regulation, score against
+    par and running totals, so the golfer gets a full set of stats without doing
+    any sums. After the ninth hole it asks whether the round ends there or
+    carries on to eighteen. Every finished round goes into a log the golfer can
+    browse, open and correct.
+
+
+    All data stays on the phone. The app has no account, no server and no sync,
+    and works with no signal. Every hole is saved the moment it is entered, so
+    committed entries survive a locked screen, a closed tab or a dead zone on
+    the back nine.
+
+
+    Problem: a golfer who wants more than a total score must track putts, GIR
+    and fairways by hand on a paper card, then work out the stats afterwards.
+    Paper cards get lost, the stats are never added up, and there is no history
+    to show whether their game is improving.
+
+
+    User: the golfer is the only user. They record a round hole by hole on a
+    phone, with no account and no other users.
+
+
+    Open question (does not block the first release): where course scorecard
+    data will come from. The golfer will decide this later. When it is decided,
+    a course''s card supplies par per hole in place of the golfer typing it.'
+  scope_in:
+    - Starting a round, with the date filled in automatically
+    - 'Recording each hole: par, strokes, putts, fairway hit'
+    - Working out GIR, score vs par, and running totals
+    - Choosing to finish or continue after hole 9
+    - Summary of a finished round
+    - Log of past rounds, with a detail view for each round
+    - Correcting an earlier hole in the round being played, or in a logged round
+    - Removing a round from the log, with undo
+    - Local, offline-first storage on the device
+    - Mobile-first layout that also works on a desktop browser
+  scope_out:
+    - Loading a scorecard from a given course (future capability; course source
+      still to be decided; the hole model must accept par from either the golfer
+      or a course)
+    - Multiple users, accounts, login or cloud sync
+    - Handicap calculation
+    - Playing partners or group scoring
+    - GPS or distance measuring
+    - Shot-by-shot tracking beyond putts and fairway hit
+  status: approved
+  success_criteria:
+    - A hole can be recorded with one hand on a phone, from par through to
+      fairway, with no typing on a keyboard
+    - Par is asked for on every hole while no course data exists, and defaults
+      to the par last entered for that hole number
+    - GIR is worked out from strokes, putts and par (on in regulation when
+      strokes − putts ≤ par − 2) and never asked for
+    - Fairway hit is greyed out (not hidden) on par-3 holes and left out of the
+      fairway percentage
+    - After hole 9, the golfer chooses to finish as a 9-hole round or continue
+      to 18; both kinds of round are stored and summarised
+    - Confirmed holes and committed draft changes survive refresh, closed tab
+      and offline periods; pending writes are visibly labelled until committed,
+      and an unfinished round reopens where it left off
+    - The round log lists every finished round with its date, holes played,
+      score vs par, total putts, GIR % and fairways hit / eligible
+    - The app is fully usable offline with no server or account; all data stays
+      on the device
+    - Partial hole edits are autosaved separately from confirmed scores and
+      recover after restart; Saving, Saved and Not saved states reflect
+      transaction outcomes.
+    - Only explicit Undo or Dismiss resolves a removal; navigation, refresh and
+      backgrounding preserve the opportunity to undo.
+  target_state: 'On the course, the golfer opens the app on their phone and
+    records each hole as they finish it: par, strokes, putts and fairway hit.
+    The app works out GIR and keeps a running score against par. After hole 9,
+    it asks whether the round ends there or carries on to 18. Every finished
+    round goes into a log the golfer can browse, with each round''s score,
+    putts, GIR and fairway stats. Committed scores and drafts recover after
+    offline use, tab closure or phone lock; pending and failed writes remain
+    visibly unsaved until committed. Browser storage can be removed by the user
+    or browser; the app never claims a backup.'
+  schema_version: 2
+  quality_profile: golf-scorecard-release
+  release_policy:
+    id: golf-scorecard-v1
+    version: '1.0'
+    allowRiskAcceptance: false
+  quality_requirements:
+    - id: scope-checks
+      dimension: functional
+      applicability: required
+      acceptance: Applicable slice acceptance checks and all already-built regression
+        checks pass against the candidate; release requires the complete npm run
+        check and documented phone checks.
+      evidence:
+        - candidate-bound acceptance and regression test results
+      blocking: true

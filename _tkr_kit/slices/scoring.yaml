@@ -1,0 +1,128 @@
+capability: scoring
+slices:
+  - number: 1
+    delivers: 'The `Hole` type (number, par, strokes, putts, fairway: ''hit'' |
+      ''missed'' | ''n/a'') and `validateHole(hole): HoleError[]`, which returns
+      every broken rule by field: par 3–5, strokes ≥ 1, 0 ≤ putts ≤ strokes − 1,
+      fairway ''n/a'' if and only if par is 3.'
+    depends_on: []
+    feature: hole-rules
+    layer: domain
+    paths:
+      - src/domain/hole.ts
+    status: planned
+    story_ids: []
+    title: Hole type and validation
+  - feature: hole-rules
+    number: 2
+    depends_on:
+      - 1
+    paths:
+      - src/domain/hole-derivations.ts
+    delivers: '`isGreenInRegulation(hole)` (strokes − putts ≤ par − 2),
+      `isFairwayEligible(par)` (par is 4 or 5) and `scoreToPar(hole)` (strokes −
+      par), as pure functions.'
+    title: Hole derivations
+    layer: domain
+    story_ids: []
+    status: planned
+  - feature: hole-rules
+    number: 3
+    depends_on:
+      - 1
+      - 2
+    paths:
+      - src/domain/index.ts
+    delivers: The domain barrel, exporting the hole type, validation and derivations
+      as named exports.
+    title: Wire hole-rules
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: hole-rules
+    number: 4
+    depends_on:
+      - 3
+    paths:
+      - src/domain/hole.test.ts
+      - src/domain/hole-derivations.test.ts
+    delivers: Table-driven unit tests covering every validation rule and its
+      boundaries (an ace is 1 stroke, 0 putts; putts = strokes is rejected), GIR
+      on and off by one for par 3, 4 and 5, and fairway eligibility for par 3–5.
+    title: Test hole-rules
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-rules
+    number: 5
+    depends_on:
+      - 1
+    paths:
+      - src/domain/round.ts
+    delivers: Round with revision and persisted continuedTo18; validateRound,
+      nextStep (enter-hole | turn | finish | finished), and canFinish
+      distinguish the turn, continuing and durable completion.
+    title: Round type and length rules
+    layer: domain
+    story_ids: []
+    status: planned
+  - feature: round-rules
+    number: 6
+    depends_on:
+      - 2
+      - 5
+    paths:
+      - src/domain/totals.ts
+    delivers: '`roundTotals(holes)` returns strokes, par, score to par, putts, GIR
+      count and holes, and fairways hit and eligible, plus percentages that are
+      `null` when the denominator is 0. The same function gives running totals
+      and final totals.'
+    title: Round totals
+    layer: domain
+    story_ids: []
+    status: planned
+  - feature: round-rules
+    number: 7
+    depends_on:
+      - 1
+    paths:
+      - src/domain/par-source.ts
+    delivers: 'The `ParSource` interface (`suggestPar(holeNumber):
+      Promise<number>`), the `ParMemory` reader port, and
+      `createManualParSource(memory)`, which suggests the remembered par or 4.
+      This is the seam course-scorecard will implement later.'
+    title: ParSource port and manual ParSource
+    layer: domain
+    story_ids: []
+    status: planned
+  - feature: round-rules
+    number: 8
+    depends_on:
+      - 3
+      - 5
+      - 6
+      - 7
+    paths:
+      - src/domain/index.ts
+    delivers: Round type, length rules, totals and the ParSource port added to the
+      domain barrel.
+    title: Wire round-rules
+    layer: integration
+    story_ids: []
+    status: planned
+  - feature: round-rules
+    number: 9
+    depends_on:
+      - 8
+    paths:
+      - src/domain/round.test.ts
+      - src/domain/totals.test.ts
+      - src/domain/par-source.test.ts
+    delivers: 'Unit tests: nextStep at holes 0, 8, 9, 17 and 18; totals for 9- and
+      18-hole rounds, all par 3s (fairway % null) and an empty round; the manual
+      ParSource with an injected in-test ParMemory (a hand-written fake of the
+      port, with no module mocking).'
+    title: Test round-rules
+    layer: integration
+    story_ids: []
+    status: planned

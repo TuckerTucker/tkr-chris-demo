@@ -1,0 +1,191 @@
+capability: platform
+slice_specs:
+  - slice: 1
+    behavior:
+      - '`npm run build` emits dist/ with no type errors'
+      - '`npm run typecheck` runs tsc --noEmit and fails on any type error'
+      - '`npm run lint` fails on any warning (--max-warnings 0)'
+      - Every dependency is pinned to an exact version (no ^ or ~)
+      - Use TypeScript 6.0.3 with typescript-eslint 8.71.0; its declared peer
+        range excludes TypeScript 7. Current local Node 20.19.5 must be replaced
+        with a supported runtime before execution.
+      - Named application exports and explicit return types; default exports
+        only where configuration tools require them. TSDoc exported APIs.
+        Configure browser/Node globals and TypeScript linting for actual
+        source/config/test files.
+    errors:
+      - Fail closed on peer or engine mismatch; never use --force,
+        --legacy-peer-deps or suppressed compatibility warnings. Dependency
+        changes require regenerated plans and renewed compatibility evidence.
+    interface:
+      - 'package.json: "type": "module", scripts dev | build | preview |
+        typecheck | lint'
+      - 'tsconfig.json: strict true, noUncheckedIndexedAccess true, jsx
+        react-jsx with jsxImportSource preact, moduleResolution bundler'
+      - 'vite.config.ts: export default defineConfig({ plugins: [preact()] })'
+      - 'eslint.config.js: flat config, @eslint/js recommended +
+        typescript-eslint strict'
+      - 'index.html: <div id="app">, module script /src/main.tsx'
+      - 'package.json engines.node: ^22.13.0 || ^24.0.0 || >=26.0.0; .npmrc
+        engine-strict=true; package-lock.json committed; use npm ci on clean
+        checkout.'
+      - src/main.tsx supplies the initial buildable Preact mount and app-name
+        heading. This entry point is later extended by offline-shell and
+        composition-root.
+      - .gitignore excludes node_modules/, dist/, test-results/,
+        playwright-report/, .vitest/ and OS metadata.
+    packages:
+      - dev: true
+        name: vite
+        range: 8.3.1
+        reason: dev server and bundler
+      - dev: false
+        name: preact
+        range: 11.0.0
+        reason: 'UI runtime: small enough for a phone on weak signal'
+      - dev: true
+        name: '@preact/preset-vite'
+        range: 2.10.6
+        reason: Preact JSX and HMR for Vite
+      - dev: true
+        name: typescript
+        range: 6.0.3
+        reason: strict type checking
+      - dev: true
+        name: eslint
+        range: 10.11.0
+        reason: lint
+      - dev: true
+        name: '@eslint/js'
+        range: 10.0.1
+        reason: ESLint recommended rules
+      - dev: true
+        name: typescript-eslint
+        range: 8.71.0
+        reason: TypeScript lint rules
+      - name: '@types/node'
+        range: 22.18.6
+        dev: true
+        reason: Node configuration and script types compatible with the selected test
+          tooling
+    purpose: Create the build foundation every other slice writes into.
+    status: approved
+    tests:
+      - '`npm run build && npm run typecheck && npm run lint` exits 0 on the
+        clean scaffold'
+    title: Project scaffold
+  - status: approved
+    title: Test tooling
+    purpose: 'Give every capability real-dependency test runners: node for pure
+      code, a real browser for IndexedDB and components, Playwright for e2e.'
+    interface:
+      - 'vitest.config.ts: test.projects = [{ name: ''unit'', environment:
+        ''node'', include: [''src/domain/**/*.test.ts'',
+        ''scripts/**/*.test.ts''] }, { name: ''browser'', browser: { enabled:
+        true, provider: playwright(), instances: [{ browser: ''chromium'' }] },
+        include: [''src/{storage,ui,app}/**/*.test.{ts,tsx}''] }]'
+      - package.json scripts setup:browsers = playwright install chromium
+        webkit; test runners use run mode and no watch; the browser project
+        inherits the Preact JSX transform.
+      - 'e2e projects: Chromium phone and desktop, plus WebKit phone for
+        scoring, storage and offline compatibility. A physical iOS home-screen
+        smoke check remains a release gate.'
+      - e2e/fixtures.ts uses an isolated browser context and origin storage per
+        test. Same-origin tabs deliberately share a context only in concurrency
+        tests; close DB connections before deleting each test DB. No production
+        query parameter or global test backdoor selects database names.
+      - src/storage/browser-smoke.test.ts opens/closes/deletes a real IndexedDB
+        store and asserts record round-trip; it is a meaningful tooling
+        integration test.
+      - playwright.config.ts starts vite preview for built assets with explicit
+        host/port and reuseExistingServer=false in CI; fixtures export the base
+        test with isolated contexts.
+    behavior:
+      - '`npm run test:unit` runs the unit project only'
+      - '`npm run test:browser` runs the browser project in headless Chromium'
+      - '`npm run test:e2e` builds and runs Playwright against the preview
+        server'
+      - Browser tests open real IndexedDB; there is no in-memory stand-in
+    errors:
+      - 'Missing browser binaries: actionable setup error naming npm run
+        setup:browsers; do not download on every test run.'
+    tests:
+      - Browser tooling test writes and reads a real IndexedDB record, closes
+        the connection and deletes the database.
+    packages:
+      - name: vitest
+        range: 5.0.3
+        dev: true
+        reason: unit and browser test runner
+      - name: '@vitest/browser'
+        range: 5.0.3
+        dev: true
+        reason: 'Vitest browser mode: real-browser tests'
+      - name: '@vitest/browser-playwright'
+        range: 5.0.3
+        dev: true
+        reason: Playwright provider for Vitest browser mode
+      - name: '@playwright/test'
+        range: 1.63.0
+        dev: true
+        reason: end-to-end tests
+      - name: playwright
+        range: 1.63.0
+        dev: true
+        reason: Direct Playwright provider dependency, matching @playwright/test
+    slice: 2
+  - status: approved
+    title: Wire project-scaffold
+    purpose: One command proves the whole tree is green, and the no-mocks ban is
+      enforced instead of hoped for.
+    interface:
+      - 'package.json script check: typecheck && lint && check:no-mocks &&
+        test:unit && test:browser && test:e2e'
+      - 'scripts/check-no-mocks.ts: export function findMocks(files:
+        ReadonlyArray<{ path: string; text: string }>): MockHit[]; CLI exits 1
+        when hits.length > 0'
+      - 'export interface MockHit { readonly path: string; readonly line:
+        number; readonly construct: string }'
+    behavior:
+      - check stops at the first failing step. No passWithNoTests in final
+        validation. Install dependencies and browsers explicitly before checks;
+        no network fetch is part of a test run.
+      - check-no-mocks parses TypeScript syntax/import bindings and inspects
+        executable calls, including aliased vi/jest mocks, doMock, spyOn and
+        mock.module. Scan test and helper source, excluding
+        generated/vendor/build output; comments and string fixtures are not
+        calls.
+      - The guard fixture containing the text vi.mock is allowed as data; actual
+        executable mocking in a helper must fail. Collaborators are supplied
+        through explicit ports.
+    errors:
+      - A hit prints `path:line construct` and exits 1
+    tests:
+      - Typecheck/lint and the executable guard CLI pass on the available
+        scaffold. The full check runs in slice 4 once unit and e2e tests exist.
+    packages:
+      - name: tsx
+        range: 4.23.15
+        dev: true
+        reason: run the TypeScript guard script
+    slice: 3
+  - status: approved
+    title: Test project-scaffold
+    purpose: Prove the chain runs end to end and the guard bites.
+    interface:
+      - e2e/smoke.spec.ts
+      - scripts/check-no-mocks.test.ts
+    behavior:
+      - Smoke asserts a mounted app heading.
+      - The guard recognises executable sample calls while ignoring the same
+        text in a quoted fixture.
+    errors: []
+    tests:
+      - 'Smoke asserts the app heading mounts, not merely that an empty #app
+        node exists.'
+      - Guard covers direct and aliased mock/spy calls in tests/helpers, and
+        proves comments/string fixtures remain allowed; each banned construct
+        has a failing case.
+      - npm ci, browser setup, build, typecheck, lint and check all succeed
+        under the declared supported Node version.
+    slice: 4

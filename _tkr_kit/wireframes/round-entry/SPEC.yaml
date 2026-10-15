@@ -1,0 +1,68 @@
+section: round-entry
+shell:
+  header: compact app bar — round context left (date), round menu right
+  layout: single column, primary action pinned to the bottom (thumb zone)
+screens:
+- id: start-round
+  mobile: start-round-mobile.svg
+  route: /round/start
+  slices:
+  - round-entry/3
+  purpose: 'Start a round in one tap. Shows today''s date pre-filled as the round''s only detail and one
+    large "Start round" button pinned in the thumb zone. A secondary link goes to the round log. No other
+    input is required.
+
+    '
+- id: hole-entry
+  mobile: hole-entry-mobile.svg
+  route: /round/hole/:n
+  slices:
+  - round-entry/1
+  - round-entry/4
+  - round-entry/5
+  purpose: 'Record one hole (shown for hole 5, par 4). Header shows the running score vs par (e.g. "+2")
+    and holes played ("4 holes recorded"). Four large controls stacked: Par stepper (pre-filled from par
+    memory), Strokes stepper (pre-filled = par), Putts stepper (pre-filled 2), Fairway chip toggle (Hit
+    / Missed). A derived "GIR ✓" indicator shows for the current values, labelled as calculated, not entered.
+    A hole strip below the header lets the golfer jump to any recorded hole to correct it. Big "Confirm
+    hole 5" button pinned at the bottom.
+
+    '
+- id: hole-entry-par3
+  mobile: hole-entry-par3-mobile.svg
+  route: /round/hole/:n
+  slices:
+  - round-entry/1
+  - round-entry/4
+  purpose: 'The same hole screen on a par 3 (hole 7) with an invalid value: the Fairway control is greyed
+    out with its reason shown beneath ("Not counted on par 3"). Putts are set equal to strokes, so an
+    inline error under Putts reads "Putts must be fewer than strokes", and the Confirm button is disabled
+    with that same reason. Nothing is hidden; nothing appears as a toast.
+
+    '
+- id: the-turn
+  mobile: the-turn-mobile.svg
+  route: /round/turn
+  slices:
+  - round-entry/9
+  purpose: 'After hole 9 is recorded. A front-nine summary block (score vs par, strokes, putts, GIR count,
+    fairways hit / eligible) above two equally large choices: "Finish — 9 holes" and "Play the back nine".
+    No default is forced and there is no dialog; this is a full screen in the flow.
+
+    '
+- id: round-summary
+  mobile: round-summary-mobile.svg
+  route: /round/:id/summary
+  slices:
+  - round-entry/10
+  purpose: 'A finished 18-hole round. A headline score vs par in large type, then a stat row: strokes,
+    putts, GIR %, fairways hit / eligible. Below, the per-hole scorecard table (hole, par, strokes, putts,
+    GIR, fairway) with Out, In and Total rows. A button goes to the round log.
+
+    '
+implementation_rules:
+- Slice specs own interaction and persistence contracts; SVGs are layout sketches, not score fixtures.
+- All interactive targets are at least 48px and text scales; layouts must work at 320px, 200% text zoom,
+  portrait and landscape.
+- Drafts autosave with Saving/Saved/Not saved feedback; confirmed totals never include drafts.
+- Undo is persistent in the app layout, without countdown or purge on navigation; use Undo or Dismiss.
